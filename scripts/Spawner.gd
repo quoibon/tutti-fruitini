@@ -70,6 +70,13 @@ func drop_fruit(x_position: float) -> void:
 	# Initialize with next fruit level
 	fruit.initialize(next_fruit_level)
 
+	# Drop animation (scale from 0.7 to 1.0)
+	fruit.scale = Vector2(0.7, 0.7)
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(fruit, "scale", Vector2(1.0, 1.0), 0.3)
+
 	# Emit signal
 	emit_signal("fruit_spawned", fruit)
 

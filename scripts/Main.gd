@@ -3,19 +3,27 @@ extends Node2D
 ## Main - Main game scene controller
 
 @onready var spawner = $Managers/Spawner
+@onready var shake_manager = $Managers/ShakeManager
 @onready var spawn_point = $GameplayArea/SpawnPoint
 @onready var fruit_container = $GameplayArea/FruitContainer
 @onready var game_over_detector = $GameplayArea/GameOverDetector
+@onready var camera = $Camera2D
 
 @onready var score_label = $UI/ScoreLabel
 @onready var high_score_label = $UI/HighScoreLabel
 @onready var next_fruit_label = $UI/NextFruitLabel
 @onready var combo_label = $UI/ComboLabel
+@onready var shake_label = $UI/ShakeCounter/ShakeLabel
+@onready var shake_button = $UI/ShakeButton
+@onready var refill_button = $UI/RefillButton
 
 func _ready() -> void:
 	# Setup spawner references
 	spawner.spawn_point = spawn_point
 	spawner.fruit_container = fruit_container
+
+	# Setup shake manager camera reference
+	shake_manager.camera = camera
 
 	# Connect signals
 	ScoreManager.score_changed.connect(_on_score_changed)
@@ -24,12 +32,16 @@ func _ready() -> void:
 	spawner.next_fruit_changed.connect(_on_next_fruit_changed)
 	game_over_detector.game_over_triggered.connect(_on_game_over)
 	GameManager.game_started.connect(_on_game_started)
+	shake_manager.shake_count_changed.connect(_on_shake_count_changed)
+	shake_button.pressed.connect(_on_shake_button_pressed)
+	refill_button.pressed.connect(_on_refill_button_pressed)
 
 	# Initialize UI
 	update_score_ui()
 	update_high_score_ui()
 	update_combo_ui()
 	update_next_fruit_ui()
+	update_shake_counter_ui()
 
 	# Start game
 	GameManager.start_game()
@@ -76,7 +88,38 @@ func _on_game_started() -> void:
 
 func _on_game_over() -> void:
 	print("Game Over! Final Score: ", ScoreManager.score)
-	# TODO: Show game over screen
-	# For now, just restart after delay
-	await get_tree().create_timer(2.0).timeout
-	GameManager.restart_game()
+	# Show game over screen after brief delay
+	await get_tree().create_timer(1.0).timeout
+	var game_over_scene = preload("res://scenes/GameOver.tscn").instantiate()
+	add_child(game_over_scene)
+
+func _on_shake_count_changed(count: int) -> void:
+	update_shake_counter_ui()
+	# Show refill button if no shakes left
+	if count <= 0:
+		refill_button.visible = true
+		shake_button.disabled = true
+	else:
+		refill_button.visible = false
+		shake_button.disabled = false
+
+func _on_shake_button_pressed() -> void:
+	shake_manager.perform_shake()
+
+func _on_refill_button_pressed() -> void:
+	# TODO: Show rewarded ad (Milestone 3)
+	# For now, just refill for free
+	shake_manager.refill_shakes()
+	print("Shakes refilled! (Ad integration coming in Milestone 3)")
+
+func update_shake_counter_ui() -> void:
+	var count = shake_manager.get_shake_count()
+	shake_label.text = "x " + str(count)
+
+	# Change color based on shake count
+	if count <= 0:
+		shake_label.add_theme_color_override("font_color", Color(1, 0, 0))  # Red
+	elif count <= 10:
+		shake_label.add_theme_color_override("font_color", Color(1, 0.5, 0))  # Orange
+	else:
+		shake_label.add_theme_color_override("font_color", Color(0, 0, 0))  # Black

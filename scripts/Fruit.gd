@@ -127,6 +127,9 @@ func perform_merge(other_fruit: Fruit) -> void:
 	# Calculate average velocity
 	var avg_velocity = (linear_velocity + other_fruit.linear_velocity) / 2.0
 
+	# Spawn merge particles
+	spawn_merge_particles(spawn_pos)
+
 	# Add score
 	ScoreManager.add_score(score_value * 2)
 
@@ -145,6 +148,42 @@ func perform_merge(other_fruit: Fruit) -> void:
 	queue_free()
 	other_fruit.queue_free()
 
+func spawn_merge_particles(pos: Vector2) -> void:
+	# Create particles for merge effect
+	var particles = CPUParticles2D.new()
+	get_parent().add_child(particles)
+	particles.global_position = pos
+
+	# Get merge particle color from fruit data
+	var particle_color = Color(fruit_info.get("merge_particle_color", "#FFFFFF"))
+
+	# Configure particle system
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 20
+	particles.lifetime = 0.6
+	particles.explosiveness = 0.8
+
+	# Visual properties
+	particles.color = particle_color
+	particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	particles.emission_sphere_radius = fruit_info.get("radius", 16) * 0.5
+
+	# Motion
+	particles.direction = Vector2.UP
+	particles.spread = 180.0
+	particles.initial_velocity_min = 100.0
+	particles.initial_velocity_max = 200.0
+	particles.gravity = Vector2(0, 300)
+
+	# Size and scale
+	particles.scale_amount_min = 4.0
+	particles.scale_amount_max = 8.0
+
+	# Auto-cleanup
+	await get_tree().create_timer(particles.lifetime + 0.1).timeout
+	particles.queue_free()
+
 func spawn_next_fruit(pos: Vector2, velocity: Vector2) -> void:
 	var new_level = min(level + 1, 10)
 	var new_fruit = GameManager.fruit_scene.instantiate()
@@ -156,6 +195,13 @@ func spawn_next_fruit(pos: Vector2, velocity: Vector2) -> void:
 	new_fruit.global_position = pos
 	new_fruit.initialize(new_level)
 	new_fruit.linear_velocity = velocity * 0.5  # Reduce velocity slightly
+
+	# Pop-in animation for merged fruit
+	new_fruit.scale = Vector2(1.3, 1.3)
+	var tween = get_tree().create_tween()
+	tween.set_trans(Tween.TRANS_ELASTIC)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(new_fruit, "scale", Vector2(1.0, 1.0), 0.4)
 
 func _on_merge_cooldown_timeout() -> void:
 	can_merge = true
