@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://b8vnx9k2m5wqp"]
+[gd_scene load_steps=2 format=3 uid="uid://b8vnyak2m5wqp"]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1_mainmenu"]
 

@@ -95,6 +95,9 @@ func drop_fruit(x_position: float) -> void:
 	tween.set_ease(Tween.EASE_OUT)
 	tween.tween_property(fruit, "scale", Vector2(1.0, 1.0), 0.3)
 
+	# Play drop sound
+	AudioManager.play_drop_sound()
+
 	# Emit signal
 	emit_signal("fruit_spawned", fruit)
 

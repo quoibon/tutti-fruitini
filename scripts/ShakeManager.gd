@@ -56,6 +56,9 @@ func perform_shake() -> void:
 	# Haptic feedback
 	Input.vibrate_handheld(100)  # 100ms vibration
 
+	# Play shake sound
+	AudioManager.play_shake_sound()
+
 	# Update shake count
 	shake_count -= 1
 	emit_signal("shake_count_changed", shake_count)
@@ -105,6 +108,7 @@ func refill_shakes() -> void:
 	emit_signal("shake_count_changed", shake_count)
 	emit_signal("shake_refilled")
 	save_shake_count()
+	AudioManager.play_refill_sound()
 	print("Shakes refilled to ", MAX_SHAKES)
 
 func get_shake_count() -> int:
@@ -114,15 +118,8 @@ func can_shake() -> bool:
 	return shake_count > 0 and not is_on_cooldown and not GameManager.is_game_over
 
 func save_shake_count() -> void:
-	var file = FileAccess.open("user://shake_count.dat", FileAccess.WRITE)
-	if file:
-		file.store_32(shake_count)
-		file.close()
+	SaveManager.save_shake_count(shake_count)
 
 func load_shake_count() -> void:
-	if FileAccess.file_exists("user://shake_count.dat"):
-		var file = FileAccess.open("user://shake_count.dat", FileAccess.READ)
-		if file:
-			shake_count = file.get_32()
-			file.close()
-			emit_signal("shake_count_changed", shake_count)
+	shake_count = SaveManager.get_shake_count()
+	emit_signal("shake_count_changed", shake_count)

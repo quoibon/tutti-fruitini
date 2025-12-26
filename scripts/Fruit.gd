@@ -130,6 +130,9 @@ func perform_merge(other_fruit: Fruit) -> void:
 	# Spawn merge particles
 	spawn_merge_particles(spawn_pos)
 
+	# Play merge sound
+	AudioManager.play_merge_sound()
+
 	# Add score
 	ScoreManager.add_score(score_value * 2)
 

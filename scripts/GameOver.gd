@@ -22,7 +22,9 @@ func _ready() -> void:
 		high_score_label.add_theme_color_override("font_color", Color(1, 0.84, 0))  # Gold
 
 func _on_restart_pressed() -> void:
+	AudioManager.play_click_sound()
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
 func _on_menu_pressed() -> void:
+	AudioManager.play_click_sound()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

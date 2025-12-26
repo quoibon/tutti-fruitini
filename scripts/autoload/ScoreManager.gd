@@ -59,20 +59,13 @@ func _on_combo_timeout() -> void:
 	emit_signal("combo_changed", combo_multiplier)
 
 func save_high_score() -> void:
-	var file = FileAccess.open("user://high_score.dat", FileAccess.WRITE)
-	if file:
-		file.store_32(high_score)
-		file.close()
-		print("High score saved: ", high_score)
+	SaveManager.save_high_score(high_score)
+	print("High score saved: ", high_score)
 
 func load_high_score() -> void:
-	if FileAccess.file_exists("user://high_score.dat"):
-		var file = FileAccess.open("user://high_score.dat", FileAccess.READ)
-		if file:
-			high_score = file.get_32()
-			file.close()
-			print("High score loaded: ", high_score)
-			emit_signal("high_score_changed", high_score)
+	high_score = SaveManager.get_high_score()
+	print("High score loaded: ", high_score)
+	emit_signal("high_score_changed", high_score)
 
 func get_current_score() -> int:
 	return score

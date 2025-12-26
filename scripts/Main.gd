@@ -126,9 +126,11 @@ func _on_shake_count_changed(count: int) -> void:
 		shake_button.disabled = false
 
 func _on_shake_button_pressed() -> void:
+	AudioManager.play_click_sound()
 	shake_manager.perform_shake()
 
 func _on_refill_button_pressed() -> void:
+	AudioManager.play_click_sound()
 	# TODO: Show rewarded ad (Milestone 3)
 	# For now, just refill for free
 	shake_manager.refill_shakes()

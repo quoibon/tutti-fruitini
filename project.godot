@@ -16,10 +16,16 @@ run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
+
 [autoload]
 
 GameManager="*res://scripts/autoload/GameManager.gd"
 ScoreManager="*res://scripts/autoload/ScoreManager.gd"
+AudioManager="*res://scripts/autoload/AudioManager.gd"
+SaveManager="*res://scripts/autoload/SaveManager.gd"
 
 [display]
 

@@ -83,6 +83,7 @@ func _on_grace_period_timeout() -> void:
 
 func trigger_game_over() -> void:
 	print("GAME OVER! Fruits remained in danger zone too long")
+	AudioManager.play_game_over_sound()
 	emit_signal("game_over_triggered")
 	GameManager.end_game()
 
