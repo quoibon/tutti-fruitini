@@ -65,10 +65,10 @@ func setup_physics() -> void:
 		circle_shape.radius = radius
 		collision_shape.shape = circle_shape
 
-	# Setup merge area collision shape (95% of main radius)
+	# Setup merge area collision shape (100% of main radius for better detection)
 	if merge_area_shape:
 		var merge_circle = CircleShape2D.new()
-		merge_circle.radius = radius * 0.95
+		merge_circle.radius = radius
 		merge_area_shape.shape = merge_circle
 
 	# Set physics material
@@ -103,8 +103,10 @@ func _on_merge_area_entered(area: Area2D) -> void:
 	if other_fruit.is_merging:
 		return
 
-	# Check velocity threshold (prevent mid-air merges)
-	if linear_velocity.length() > 100 or other_fruit.linear_velocity.length() > 100:
+	# Check velocity threshold (prevent fast mid-air merges)
+	# Allow merging if fruits are moving slowly or have settled
+	var combined_velocity = (linear_velocity.length() + other_fruit.linear_velocity.length()) / 2.0
+	if combined_velocity > 300:
 		return
 
 	# Only let one fruit trigger the merge (prevent duplicate merges)
