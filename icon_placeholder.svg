@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle (Watermelon Green) -->
+  <circle cx="512" cy="512" r="500" fill="#4CAF50"/>
+
+  <!-- Inner Circle (Pink/Red Flesh) -->
+  <circle cx="512" cy="512" r="420" fill="#FF6B6B"/>
+
+  <!-- White rind layer -->
+  <circle cx="512" cy="512" r="460" fill="none" stroke="#F0F0F0" stroke-width="40"/>
+
+  <!-- Seeds (Black dots) -->
+  <circle cx="400" cy="450" r="20" fill="#1A1A1A"/>
+  <circle cx="500" cy="420" r="20" fill="#1A1A1A"/>
+  <circle cx="600" cy="460" r="20" fill="#1A1A1A"/>
+  <circle cx="450" cy="550" r="20" fill="#1A1A1A"/>
+  <circle cx="560" cy="540" r="20" fill="#1A1A1A"/>
+  <circle cx="420" cy="600" r="20" fill="#1A1A1A"/>
+  <circle cx="580" cy="620" r="20" fill="#1A1A1A"/>
+
+  <!-- Light reflection (to add depth) -->
+  <circle cx="380" cy="380" r="80" fill="white" opacity="0.3"/>
+
+  <!-- Text overlay (optional - can remove if too busy) -->
+  <text x="512" y="480" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="white" opacity="0.9">TF</text>
+  <text x="512" y="590" font-family="Arial, sans-serif" font-size="48" text-anchor="middle" fill="white" opacity="0.9">Tutti</text>
+  <text x="512" y="650" font-family="Arial, sans-serif" font-size="48" text-anchor="middle" fill="white" opacity="0.9">Fruttini</text>
+</svg>

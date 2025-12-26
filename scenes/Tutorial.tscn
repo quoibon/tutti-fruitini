@@ -1,0 +1,173 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnj8vr3qp9wym"]
+
+[ext_resource type="Script" path="res://scripts/Tutorial.gd" id="1_tutorial"]
+
+[node name="Tutorial" type="CanvasLayer"]
+script = ExtResource("1_tutorial")
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -700.0
+offset_right = 400.0
+offset_bottom = 700.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 32
+text = "✕"
+
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 56
+text = "🍉 HOW TO PLAY 🍉"
+horizontal_alignment = 1
+
+[node name="Spacer1" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="Step1Container" type="VBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Step1Title" type="Label" parent="Panel/VBoxContainer/Step1Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.43, 1)
+theme_override_font_sizes/font_size = 40
+text = "1️⃣ TAP TO DROP FRUITS"
+horizontal_alignment = 1
+
+[node name="Step1Desc" type="Label" parent="Panel/VBoxContainer/Step1Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+text = "Tap anywhere to drop the fruit shown at the top.
+The fruit will fall where you tap!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer2" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="Step2Container" type="VBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Step2Title" type="Label" parent="Panel/VBoxContainer/Step2Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.42, 1)
+theme_override_font_sizes/font_size = 40
+text = "2️⃣ MERGE MATCHING FRUITS"
+horizontal_alignment = 1
+
+[node name="Step2Desc" type="Label" parent="Panel/VBoxContainer/Step2Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+text = "When two identical fruits touch, they merge into
+a bigger fruit! Keep merging to reach the watermelon!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer3" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="Step3Container" type="VBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Step3Title" type="Label" parent="Panel/VBoxContainer/Step3Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 40
+text = "3️⃣ USE SHAKE WISELY"
+horizontal_alignment = 1
+
+[node name="Step3Desc" type="Label" parent="Panel/VBoxContainer/Step3Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+text = "Press the SHAKE button to jostle all fruits!
+You have 50 shakes - use them when stuck.
+Watch an ad to refill your shakes!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer4" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="Step4Container" type="VBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Step4Title" type="Label" parent="Panel/VBoxContainer/Step4Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0.43, 1)
+theme_override_font_sizes/font_size = 40
+text = "⚠️ AVOID GAME OVER"
+horizontal_alignment = 1
+
+[node name="Step4Desc" type="Label" parent="Panel/VBoxContainer/Step4Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+text = "Don't let fruits pile up past the red line at the top!
+If a fruit stays in the danger zone for 2 seconds,
+it's game over!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer5" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="TipLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.43, 1)
+theme_override_font_sizes/font_size = 28
+text = "💡 TIP: Stack fruits strategically to create
+big combos and high scores!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer6" type="Control" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GotItButton" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(500, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 40
+text = "GOT IT!"

@@ -41,6 +41,7 @@ func get_default_data() -> Dictionary:
 		"version": "1.0.0",
 		"high_score": 0,
 		"shake_count": 50,
+		"tutorial_seen": false,
 		"settings": {
 			"music_volume": 0.8,
 			"sfx_volume": 1.0,
@@ -123,3 +124,10 @@ func get_stats() -> Dictionary:
 	if current_data.has("stats"):
 		return current_data["stats"]
 	return get_default_data()["stats"]
+
+func mark_tutorial_seen() -> void:
+	current_data["tutorial_seen"] = true
+	save_data()
+
+func has_seen_tutorial() -> bool:
+	return current_data.get("tutorial_seen", false)
