@@ -47,6 +47,22 @@ func _ready() -> void:
 	GameManager.start_game()
 	ScoreManager.reset_score()
 
+func _process(_delta: float) -> void:
+	# Update preview position to follow mouse
+	if not GameManager.is_game_over:
+		update_preview_position()
+
+func update_preview_position() -> void:
+	var mouse_pos = get_global_mouse_position()
+
+	# Clamp X position to container bounds
+	var container_left = spawn_point.global_position.x - GameManager.CONTAINER_WIDTH / 2 + 30
+	var container_right = spawn_point.global_position.x + GameManager.CONTAINER_WIDTH / 2 - 30
+	var clamped_x = clamp(mouse_pos.x, container_left, container_right)
+
+	# Update preview X position, keep Y fixed above spawn point
+	next_fruit_preview.global_position.x = clamped_x
+
 func _on_score_changed(new_score: int) -> void:
 	update_score_ui()
 

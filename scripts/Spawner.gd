@@ -30,13 +30,31 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	# Handle touch/click input
 	if event is InputEventScreenTouch and event.pressed:
-		if can_spawn and not GameManager.is_game_over:
+		if can_spawn and not GameManager.is_game_over and not is_mouse_over_ui():
 			var touch_pos = event.position
 			drop_fruit_at_screen_pos(touch_pos)
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if can_spawn and not GameManager.is_game_over:
+		if can_spawn and not GameManager.is_game_over and not is_mouse_over_ui():
 			var mouse_pos = event.position
 			drop_fruit_at_screen_pos(mouse_pos)
+
+func is_mouse_over_ui() -> bool:
+	# Check if mouse is over any UI button
+	var viewport = get_viewport()
+	var mouse_pos = viewport.get_mouse_position()
+
+	# Get all nodes at mouse position
+	var space_state = viewport.gui_get_focus_owner()
+
+	# Check if any button is being hovered
+	var ui_root = get_tree().root.get_node_or_null("Main/UI")
+	if ui_root:
+		for child in ui_root.get_children():
+			if child is Button:
+				var rect = child.get_global_rect()
+				if rect.has_point(mouse_pos):
+					return true
+	return false
 
 func drop_fruit_at_screen_pos(screen_pos: Vector2) -> void:
 	# Convert screen position to world position
