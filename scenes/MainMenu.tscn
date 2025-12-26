@@ -64,6 +64,17 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
 text = "PLAY"
 
+[node name="Spacer2_5" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(500, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "SETTINGS"
+
 [node name="Spacer3" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2

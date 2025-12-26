@@ -1,0 +1,148 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmr8xvw3xlm8h"]
+
+[ext_resource type="Script" path="res://scripts/Settings.gd" id="1_settings"]
+
+[node name="Settings" type="CanvasLayer"]
+script = ExtResource("1_settings")
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -400.0
+offset_right = 300.0
+offset_bottom = 400.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="Spacer1" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="MusicVolumeContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="MusicVolumeLabel" type="Label" parent="Panel/VBoxContainer/MusicVolumeContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Music Volume"
+vertical_alignment = 1
+
+[node name="MusicVolumeSlider" type="HSlider" parent="Panel/VBoxContainer/MusicVolumeContainer"]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+value = 80.0
+
+[node name="SFXVolumeContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SFXVolumeLabel" type="Label" parent="Panel/VBoxContainer/SFXVolumeContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "SFX Volume"
+vertical_alignment = 1
+
+[node name="SFXVolumeSlider" type="HSlider" parent="Panel/VBoxContainer/SFXVolumeContainer"]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="Spacer2" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="MusicToggleContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="MusicToggleLabel" type="Label" parent="Panel/VBoxContainer/MusicToggleContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Music"
+vertical_alignment = 1
+
+[node name="MusicToggle" type="CheckButton" parent="Panel/VBoxContainer/MusicToggleContainer"]
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
+[node name="SFXToggleContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SFXToggleLabel" type="Label" parent="Panel/VBoxContainer/SFXToggleContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Sound Effects"
+vertical_alignment = 1
+
+[node name="SFXToggle" type="CheckButton" parent="Panel/VBoxContainer/SFXToggleContainer"]
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
+[node name="VibrationToggleContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VibrationToggleLabel" type="Label" parent="Panel/VBoxContainer/VibrationToggleContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Vibration"
+vertical_alignment = 1
+
+[node name="VibrationToggle" type="CheckButton" parent="Panel/VBoxContainer/VibrationToggleContainer"]
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
+[node name="Spacer3" type="Control" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "BACK"
