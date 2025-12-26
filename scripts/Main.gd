@@ -13,7 +13,7 @@ extends Node2D
 @onready var high_score_label = $UI/HighScoreLabel
 @onready var next_fruit_label = $UI/NextFruitLabel
 @onready var combo_label = $UI/ComboLabel
-@onready var shake_label = $UI/ShakeCounter/ShakeLabel
+@onready var next_fruit_preview = $UI/NextFruitPreview/VBox/PreviewSprite
 @onready var shake_button = $UI/ShakeButton
 @onready var refill_button = $UI/RefillButton
 
@@ -83,6 +83,12 @@ func update_next_fruit_ui() -> void:
 	var display_name = fruit_info.get("display_name", "Unknown")
 	next_fruit_label.text = "Next: " + display_name
 
+	# Update visual preview
+	var radius = fruit_info.get("radius", 16)
+	var color = Color(fruit_info.get("color", "#FFFFFF"))
+	var texture = Utils.generate_circle_texture(radius, color)
+	next_fruit_preview.texture = texture
+
 func _on_game_started() -> void:
 	print("Game started!")
 
@@ -114,12 +120,12 @@ func _on_refill_button_pressed() -> void:
 
 func update_shake_counter_ui() -> void:
 	var count = shake_manager.get_shake_count()
-	shake_label.text = "x " + str(count)
+	shake_button.text = "🔔 " + str(count) + "\nSHAKE"
 
-	# Change color based on shake count
+	# Change button color based on shake count
 	if count <= 0:
-		shake_label.add_theme_color_override("font_color", Color(1, 0, 0))  # Red
+		shake_button.modulate = Color(1, 0.5, 0.5)  # Light red tint
 	elif count <= 10:
-		shake_label.add_theme_color_override("font_color", Color(1, 0.5, 0))  # Orange
+		shake_button.modulate = Color(1, 0.8, 0.5)  # Light orange tint
 	else:
-		shake_label.add_theme_color_override("font_color", Color(0, 0, 0))  # Black
+		shake_button.modulate = Color(1, 1, 1)  # Normal
