@@ -16,17 +16,25 @@ extends Node2D
 @onready var next_fruit_preview = $GameplayArea/NextFruitPreview
 @onready var shake_button = $UI/ShakeButton
 @onready var refill_button = $UI/RefillButton
+@onready var pause_button = $UI/PauseButton  # Will be created in scene
 
 # Object pools
 var fruit_pool: FruitPool
 var particle_pool: ParticlePool
 
+# Pause menu
+var pause_scene: PackedScene
+
 func _ready() -> void:
+	# Load pause scene
+	pause_scene = preload("res://scenes/Pause.tscn")
+
 	# Setup object pools
 	fruit_pool = FruitPool.new()
 	particle_pool = ParticlePool.new()
 	add_child(fruit_pool)
 	$GameplayArea.add_child(particle_pool)
+
 	# Setup spawner references
 	spawner.spawn_point = spawn_point
 	spawner.fruit_container = fruit_container
@@ -44,6 +52,7 @@ func _ready() -> void:
 	shake_manager.shake_count_changed.connect(_on_shake_count_changed)
 	shake_button.pressed.connect(_on_shake_button_pressed)
 	refill_button.pressed.connect(_on_refill_button_pressed)
+	pause_button.pressed.connect(_on_pause_button_pressed)
 
 	# Connect AdManager signals
 	AdManager.reward_earned.connect(_on_ad_reward_earned)
@@ -193,3 +202,13 @@ func _on_free_refill_ready() -> void:
 
 func _on_ad_failed() -> void:
 	print("Ad failed to load - free refill option available in 30s")
+
+# Pause Functionality
+
+func _on_pause_button_pressed() -> void:
+	AudioManager.play_click_sound()
+	show_pause_menu()
+
+func show_pause_menu() -> void:
+	var pause_menu = pause_scene.instantiate()
+	add_child(pause_menu)

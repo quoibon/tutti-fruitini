@@ -178,36 +178,44 @@ This document outlines all remaining tasks to complete Tutti Fruitini to a produ
 
 ## 🎮 Polish & Menu Systems
 
-### Settings Menu (Missing!)
+### Settings Menu ✅ (Scripts Complete - Scenes Need Creation)
 
-- [ ] **Create Settings.tscn scene**
+- [x] **Create Settings.gd script**
   - Music volume slider (0-100%)
   - SFX volume slider (0-100%)
   - Music on/off toggle
   - SFX on/off toggle
   - Vibration on/off toggle
   - Back button
+  - Settings persistence via SaveManager
 
-- [ ] **Settings button in MainMenu**
-  - Add settings button to MainMenu.tscn
-  - Connect to Settings scene
+- [x] **Settings button in MainMenu**
+  - Code integration complete in MainMenu.gd
+  - Button needs to be added to MainMenu.tscn in Godot editor
 
-- [ ] **Settings in pause menu**
-  - Access settings from pause menu
+- [x] **Settings in pause menu**
+  - Settings accessible from pause menu
+  - Fully integrated
 
-### Pause Menu (Missing!)
+**NOTE**: Settings.tscn scene needs to be created in Godot editor (see SCENE_SETUP_GUIDE.md)
 
-- [ ] **Create Pause.tscn scene**
-  - Resume button
-  - Restart button
-  - Settings button
-  - Quit to menu button
+### Pause Menu ✅ (Scripts Complete - Scenes Need Creation)
+
+- [x] **Create Pause.gd script**
+  - Resume button (unpauses and closes menu)
+  - Restart button (restarts game)
+  - Settings button (opens settings from pause)
+  - Quit to menu button (returns to main menu)
   - Semi-transparent overlay
+  - Proper pause mode configuration
 
-- [ ] **Pause button in Main scene**
-  - Add pause button to HUD
-  - Pause game logic (freeze physics)
-  - Show pause menu
+- [x] **Pause button in Main scene**
+  - Code integration complete in Main.gd
+  - Pause button needs to be added to Main.tscn in Godot editor
+  - Pause logic (freezes physics via get_tree().paused)
+  - Shows pause menu overlay
+
+**NOTE**: Pause.tscn scene needs to be created in Godot editor (see SCENE_SETUP_GUIDE.md)
 
 ### Tutorial/How to Play (Recommended)
 
