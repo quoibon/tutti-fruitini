@@ -26,6 +26,7 @@ GameManager="*res://scripts/autoload/GameManager.gd"
 ScoreManager="*res://scripts/autoload/ScoreManager.gd"
 AudioManager="*res://scripts/autoload/AudioManager.gd"
 SaveManager="*res://scripts/autoload/SaveManager.gd"
+AdManager="*res://scripts/autoload/AdManager.gd"
 
 [display]
 

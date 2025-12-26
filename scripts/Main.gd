@@ -17,7 +17,16 @@ extends Node2D
 @onready var shake_button = $UI/ShakeButton
 @onready var refill_button = $UI/RefillButton
 
+# Object pools
+var fruit_pool: FruitPool
+var particle_pool: ParticlePool
+
 func _ready() -> void:
+	# Setup object pools
+	fruit_pool = FruitPool.new()
+	particle_pool = ParticlePool.new()
+	add_child(fruit_pool)
+	$GameplayArea.add_child(particle_pool)
 	# Setup spawner references
 	spawner.spawn_point = spawn_point
 	spawner.fruit_container = fruit_container
@@ -35,6 +44,11 @@ func _ready() -> void:
 	shake_manager.shake_count_changed.connect(_on_shake_count_changed)
 	shake_button.pressed.connect(_on_shake_button_pressed)
 	refill_button.pressed.connect(_on_refill_button_pressed)
+
+	# Connect AdManager signals
+	AdManager.reward_earned.connect(_on_ad_reward_earned)
+	AdManager.free_refill_ready.connect(_on_free_refill_ready)
+	AdManager.ad_failed_to_load.connect(_on_ad_failed)
 
 	# Initialize UI
 	update_score_ui()
@@ -131,10 +145,16 @@ func _on_shake_button_pressed() -> void:
 
 func _on_refill_button_pressed() -> void:
 	AudioManager.play_click_sound()
-	# TODO: Show rewarded ad (Milestone 3)
-	# For now, just refill for free
-	shake_manager.refill_shakes()
-	print("Shakes refilled! (Ad integration coming in Milestone 3)")
+
+	# Check if free refill is ready
+	if AdManager.is_free_refill_ready():
+		shake_manager.refill_shakes()
+		refill_button.visible = false
+		print("Free refill granted!")
+	else:
+		# Show rewarded ad
+		AdManager.show_rewarded_ad()
+		print("Loading rewarded ad...")
 
 func update_shake_counter_ui() -> void:
 	var count = shake_manager.get_shake_count()
@@ -147,3 +167,29 @@ func update_shake_counter_ui() -> void:
 		shake_button.modulate = Color(1, 0.8, 0.5)  # Light orange tint
 	else:
 		shake_button.modulate = Color(1, 1, 1)  # Normal
+
+	# Update refill button text
+	if refill_button.visible:
+		if AdManager.is_free_refill_ready():
+			refill_button.text = "🎁 FREE REFILL"
+		else:
+			var time_left = int(AdManager.get_free_refill_time_remaining())
+			if time_left > 0:
+				refill_button.text = "📺 Watch Ad\n(Free in " + str(time_left) + "s)"
+			else:
+				refill_button.text = "📺 Watch Ad to Refill"
+
+# AdManager Callbacks
+
+func _on_ad_reward_earned() -> void:
+	print("Ad reward earned - refilling shakes")
+	shake_manager.refill_shakes()
+	refill_button.visible = false
+
+func _on_free_refill_ready() -> void:
+	print("Free refill is now available")
+	if refill_button.visible:
+		refill_button.text = "🎁 FREE REFILL"
+
+func _on_ad_failed() -> void:
+	print("Ad failed to load - free refill option available in 30s")

@@ -152,40 +152,21 @@ func perform_merge(other_fruit: Fruit) -> void:
 	other_fruit.queue_free()
 
 func spawn_merge_particles(pos: Vector2) -> void:
-	# Create particles for merge effect
-	var particles = CPUParticles2D.new()
-	get_parent().add_child(particles)
-	particles.global_position = pos
+	# Get particle pool from Main scene
+	var main = get_tree().root.get_node_or_null("Main")
+	if not main or not main.has_node("particle_pool"):
+		return
+
+	var particle_pool = main.get_node("particle_pool") as ParticlePool
+	if not particle_pool:
+		return
 
 	# Get merge particle color from fruit data
 	var particle_color = Color(fruit_info.get("merge_particle_color", "#FFFFFF"))
+	var radius = fruit_info.get("radius", 16)
 
-	# Configure particle system
-	particles.emitting = true
-	particles.one_shot = true
-	particles.amount = 20
-	particles.lifetime = 0.6
-	particles.explosiveness = 0.8
-
-	# Visual properties
-	particles.color = particle_color
-	particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
-	particles.emission_sphere_radius = fruit_info.get("radius", 16) * 0.5
-
-	# Motion
-	particles.direction = Vector2.UP
-	particles.spread = 180.0
-	particles.initial_velocity_min = 100.0
-	particles.initial_velocity_max = 200.0
-	particles.gravity = Vector2(0, 300)
-
-	# Size and scale
-	particles.scale_amount_min = 4.0
-	particles.scale_amount_max = 8.0
-
-	# Auto-cleanup
-	await get_tree().create_timer(particles.lifetime + 0.1).timeout
-	particles.queue_free()
+	# Emit particle effect using pool
+	particle_pool.emit_merge_effect(pos, particle_color, radius)
 
 func spawn_next_fruit(pos: Vector2, velocity: Vector2) -> void:
 	var new_level = min(level + 1, 10)
