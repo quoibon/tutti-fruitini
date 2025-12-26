@@ -9,11 +9,21 @@ signal ad_closed
 signal reward_earned
 signal free_refill_ready
 
-# Test IDs (replace with real IDs for production)
-const ANDROID_APP_ID = "ca-app-pub-3940256099942544~3347511713"  # Test App ID
-const ANDROID_REWARDED_AD_ID = "ca-app-pub-3940256099942544/5224354917"  # Test Rewarded Ad
-const IOS_APP_ID = "ca-app-pub-3940256099942544~1458002511"  # Test App ID
-const IOS_REWARDED_AD_ID = "ca-app-pub-3940256099942544/1712485313"  # Test Rewarded Ad
+# Toggle between test and production ads
+# Set to false for production release!
+const USE_TEST_ADS: bool = true
+
+# Production IDs
+const PROD_ANDROID_APP_ID = "ca-app-pub-2547513308278750~1856760076"
+const PROD_ANDROID_REWARDED_AD_ID = "ca-app-pub-2547513308278750/3568656364"
+const PROD_IOS_APP_ID = ""  # TODO: Add iOS App ID when available
+const PROD_IOS_REWARDED_AD_ID = ""  # TODO: Add iOS Rewarded Ad ID when available
+
+# Test IDs (for development)
+const TEST_ANDROID_APP_ID = "ca-app-pub-3940256099942544~3347511713"
+const TEST_ANDROID_REWARDED_AD_ID = "ca-app-pub-3940256099942544/5224354917"
+const TEST_IOS_APP_ID = "ca-app-pub-3940256099942544~1458002511"
+const TEST_IOS_REWARDED_AD_ID = "ca-app-pub-3940256099942544/1712485313"
 
 var admob: Object = null
 var rewarded_ad: Object = null
@@ -63,18 +73,23 @@ func initialize_admob() -> void:
 	if not is_plugin_available:
 		return
 
-	# Initialize AdMob with appropriate App ID
-	var app_id = ANDROID_APP_ID if OS.get_name() == "Android" else IOS_APP_ID
+	# Get appropriate App ID based on platform and test mode
+	var app_id: String
+	if OS.get_name() == "Android":
+		app_id = TEST_ANDROID_APP_ID if USE_TEST_ADS else PROD_ANDROID_APP_ID
+	else:
+		app_id = TEST_IOS_APP_ID if USE_TEST_ADS else PROD_IOS_APP_ID
 
 	# Configuration for initialization
 	var config = {
 		"max_ad_content_rating": "G",  # General audience
-		"is_real": false,  # Set to true for production
+		"is_real": not USE_TEST_ADS,  # Set to true for production
 		"is_for_child_directed_treatment": false
 	}
 
 	admob.initialize(app_id, config)
-	print("AdMob initialized with App ID: ", app_id)
+	var mode = "TEST" if USE_TEST_ADS else "PRODUCTION"
+	print("AdMob initialized in ", mode, " mode with App ID: ", app_id)
 
 func load_rewarded_ad() -> void:
 	if not is_plugin_available:
@@ -91,11 +106,15 @@ func load_rewarded_ad() -> void:
 
 	is_loading = true
 
-	# Get appropriate ad unit ID
-	var ad_unit_id = ANDROID_REWARDED_AD_ID if OS.get_name() == "Android" else IOS_REWARDED_AD_ID
+	# Get appropriate ad unit ID based on platform and test mode
+	var ad_unit_id: String
+	if OS.get_name() == "Android":
+		ad_unit_id = TEST_ANDROID_REWARDED_AD_ID if USE_TEST_ADS else PROD_ANDROID_REWARDED_AD_ID
+	else:
+		ad_unit_id = TEST_IOS_REWARDED_AD_ID if USE_TEST_ADS else PROD_IOS_REWARDED_AD_ID
 
 	# Load rewarded ad
-	print("Loading rewarded ad...")
+	print("Loading rewarded ad (", "TEST" if USE_TEST_ADS else "PRODUCTION", ")...")
 	admob.load_rewarded_ad(ad_unit_id)
 
 	# Connect signals if not already connected

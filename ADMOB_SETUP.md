@@ -39,31 +39,54 @@ Download the **Poing Studios Godot AdMob Plugin** (v6.0+):
 
 ### 4. Configure AdMob IDs
 
-#### For Testing (Current Setup):
-The game is currently configured with **Google Test Ad IDs**:
-- Rewarded Ad: `ca-app-pub-3940256099942544/5224354917`
+#### Current Setup:
+The game has **both Test and Production IDs** configured in `scripts/autoload/AdManager.gd`.
 
-#### For Production:
-1. Create an AdMob account at https://admob.google.com
-2. Create a new App in AdMob dashboard
-3. Get your App ID (format: `ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY`)
-4. Create a Rewarded Ad Unit and get its ID
-5. Update `scripts/autoload/AdManager.gd`:
-   ```gdscript
-   const ANDROID_APP_ID = "ca-app-pub-YOUR_APP_ID"
-   const ANDROID_REWARDED_AD_ID = "ca-app-pub-YOUR_REWARDED_AD_ID"
-   ```
+**Production IDs (Tutti Fruitini)**:
+- App ID: `ca-app-pub-2547513308278750~1856760076`
+- Rewarded Ad ID: `ca-app-pub-2547513308278750/3568656364`
+
+**Test IDs** (Google's test ads):
+- App ID: `ca-app-pub-3940256099942544~3347511713`
+- Rewarded Ad ID: `ca-app-pub-3940256099942544/5224354917`
+
+#### Switching Between Test and Production:
+
+In `scripts/autoload/AdManager.gd`, toggle this constant:
+
+```gdscript
+# Set to true for development (test ads)
+# Set to false for production (real ads)
+const USE_TEST_ADS: bool = true
+```
+
+**IMPORTANT**:
+- ✅ **Development/Testing**: Set `USE_TEST_ADS = true`
+- ❌ **Release Build**: Set `USE_TEST_ADS = false` before building APK/AAB
+- Test ads don't generate revenue and are for testing only
+- Production ads require AdMob account approval
 
 ### 5. Update AndroidManifest.xml
 
-Add your AdMob App ID to the Android manifest:
+Add your AdMob App ID to the Android manifest.
 
+**For Production Release**, use:
 ```xml
 <application>
-    <!-- AdMob App ID -->
+    <!-- AdMob App ID (PRODUCTION) -->
     <meta-data
         android:name="com.google.android.gms.ads.APPLICATION_ID"
-        android:value="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY"/>
+        android:value="ca-app-pub-2547513308278750~1856760076"/>
+</application>
+```
+
+**For Testing**, you can use the test App ID:
+```xml
+<application>
+    <!-- AdMob App ID (TEST) -->
+    <meta-data
+        android:name="com.google.android.gms.ads.APPLICATION_ID"
+        android:value="ca-app-pub-3940256099942544~3347511713"/>
 </application>
 ```
 
@@ -148,10 +171,12 @@ See `PRIVACY_POLICY.md` for template.
 ## Production Checklist
 
 Before releasing:
-- [ ] Replace test Ad IDs with production IDs
-- [ ] Update AndroidManifest.xml with real App ID
+- [ ] **Set `USE_TEST_ADS = false` in AdManager.gd**
+- [ ] Update AndroidManifest.xml with production App ID
+- [ ] Verify production ad IDs are correct in AdManager.gd
 - [ ] Test on multiple Android devices
 - [ ] Verify ads load and reward correctly
+- [ ] Ensure AdMob account is approved and ads enabled
 - [ ] Implement GDPR consent (if targeting EU)
 - [ ] Add privacy policy to app and Play Store
 - [ ] Monitor AdMob dashboard for impressions
