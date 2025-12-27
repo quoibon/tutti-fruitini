@@ -49,12 +49,58 @@ func setup_visuals() -> void:
 	var radius = fruit_info.get("radius", 16)
 	var color = Color(fruit_info.get("color", "#FFFFFF"))
 
-	# Create a simple colored circle sprite (placeholder until we have actual sprites)
 	if sprite:
-		# Generate circle texture
-		var texture = Utils.generate_circle_texture(radius, color)
-		sprite.texture = texture
+		# Try to load actual sprite image first
+		var sprite_loaded = try_load_sprite_image()
+
+		if not sprite_loaded:
+			# Fallback: Generate colored circle if sprite not found
+			var texture = Utils.generate_circle_texture(radius, color)
+			sprite.texture = texture
+
 		sprite.centered = true
+
+		# Scale sprite to match target radius (sprites are 1024x1024)
+		# Target diameter = radius * 2
+		# Sprite size = 1024
+		# Scale = (radius * 2) / 1024
+		var target_scale = (radius * 2.0) / 1024.0
+		sprite.scale = Vector2(target_scale, target_scale)
+
+func try_load_sprite_image() -> bool:
+	# Sprite files are named: [level+1].[FruitName].png
+	# Example: "1.BlueberrinniOctopussini.png" for level 0
+	var sprite_number = level + 1
+
+	# Map of sprite file names (just the prefix number)
+	var sprite_files = {
+		1: "1.BlueberrinniOctopussini",
+		2: "2.SlimoLiAppluni",
+		3: "3.PerochelloLemonchello",
+		4: "4.PenguinoCocosino",
+		5: "5.ChimpanziniBananini",
+		6: "6.TorrtuginniDragonfrutinni",
+		7: "7.UDinDinDinDinDun",
+		8: "8.GraipussiMedussi",
+		9: "9.CrocodildoPen",
+		10: "10.ZibraZubraZibralini",
+		11: "11.StrawberryElephant"
+	}
+
+	if not sprite_files.has(sprite_number):
+		return false
+
+	var sprite_path = "res://assets/sprites/fruits/" + sprite_files[sprite_number] + ".png"
+
+	if not FileAccess.file_exists(sprite_path):
+		return false
+
+	var texture = load(sprite_path)
+	if texture:
+		sprite.texture = texture
+		return true
+
+	return false
 
 func setup_physics() -> void:
 	var radius = fruit_info.get("radius", 16)
@@ -130,8 +176,11 @@ func perform_merge(other_fruit: Fruit) -> void:
 	# Spawn merge particles
 	spawn_merge_particles(spawn_pos)
 
-	# Play merge sound
-	AudioManager.play_merge_sound()
+	# Calculate new fruit level
+	var new_level = min(level + 1, 10)
+
+	# Play sound for the NEW fruit being created (not the old merging fruits)
+	AudioManager.play_fruit_sound(new_level)
 
 	# Add score
 	ScoreManager.add_score(score_value * 2)

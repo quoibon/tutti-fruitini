@@ -70,6 +70,9 @@ func _ready() -> void:
 	GameManager.start_game()
 	ScoreManager.reset_score()
 
+	# Play game music
+	AudioManager.play_game_music()
+
 func _process(_delta: float) -> void:
 	# Update preview position to follow mouse
 	if not GameManager.is_game_over:

@@ -23,6 +23,9 @@ func _ready() -> void:
 	# Load and display high score
 	high_score_label.text = "High Score: " + str(SaveManager.get_high_score())
 
+	# Play menu music
+	AudioManager.play_menu_music()
+
 	# Show tutorial on first launch
 	if not SaveManager.has_seen_tutorial():
 		# Delay tutorial slightly so menu is visible first

@@ -40,16 +40,30 @@ func play_music(track_name: String, loop: bool = true) -> void:
 	if not music_enabled:
 		return
 
-	var path = "res://assets/sounds/music/" + track_name + ".ogg"
-	if not FileAccess.file_exists(path):
-		print("Music file not found: ", path)
+	# Try .ogg first, then .wav (support both formats)
+	var path_ogg = "res://assets/sounds/music/" + track_name + ".ogg"
+	var path_wav = "res://assets/sounds/music/" + track_name + ".wav"
+	var path = ""
+
+	if FileAccess.file_exists(path_ogg):
+		path = path_ogg
+	elif FileAccess.file_exists(path_wav):
+		path = path_wav
+	else:
+		print("Music file not found: ", track_name)
 		return
 
 	var stream = load(path)
 	if stream:
 		music_player.stream = stream
+		# Set loop for both OggVorbis and WAV
 		if stream is AudioStreamOggVorbis:
 			stream.loop = loop
+		elif stream is AudioStreamWAV:
+			if loop:
+				stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+			else:
+				stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
 		music_player.play()
 
 func stop_music() -> void:
@@ -59,9 +73,17 @@ func play_sfx(sfx_name: String) -> void:
 	if not sfx_enabled:
 		return
 
-	var path = "res://assets/sounds/sfx/" + sfx_name + ".wav"
-	if not FileAccess.file_exists(path):
-		# Silently fail for missing audio files (they're placeholders)
+	# Try .wav first, then .mp3 (support both formats)
+	var path_wav = "res://assets/sounds/sfx/" + sfx_name + ".wav"
+	var path_mp3 = "res://assets/sounds/sfx/" + sfx_name + ".mp3"
+	var path = ""
+
+	if FileAccess.file_exists(path_wav):
+		path = path_wav
+	elif FileAccess.file_exists(path_mp3):
+		path = path_mp3
+	else:
+		# Silently fail for missing audio files
 		return
 
 	var stream = load(path)
@@ -100,6 +122,19 @@ func play_click_sound() -> void:
 
 func play_refill_sound() -> void:
 	play_sfx("refill")
+
+func play_fruit_sound(fruit_level: int) -> void:
+	# Play fruit-specific sound based on level (0-10)
+	# Files are named 01-11, so add 1 to level
+	var file_number = fruit_level + 1
+	var sound_name = str(file_number).pad_zeros(2)  # Formats as "01", "02", etc.
+	play_sfx(sound_name)
+
+func play_menu_music() -> void:
+	play_music("Menu-FootprintsPianoOnlyLOOP", true)
+
+func play_game_music() -> void:
+	play_music("Game-CaseToCaseAltPianoOnly", true)
 
 func set_music_volume(volume: float) -> void:
 	music_volume = clamp(volume, 0.0, 1.0)
