@@ -6,6 +6,9 @@ extends CanvasLayer
 @onready var got_it_button = $Panel/VBoxContainer/GotItButton
 
 func _ready() -> void:
+	# Set layer to appear above other UI
+	layer = 10
+
 	# Connect buttons
 	close_button.pressed.connect(_on_close_pressed)
 	got_it_button.pressed.connect(_on_got_it_pressed)

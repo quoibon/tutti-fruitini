@@ -117,20 +117,17 @@ func setup_physics() -> void:
 	var collision_generated = try_generate_collision_from_sprite(radius)
 
 	if not collision_generated:
-		# Fallback: Use simple circle collision with adjustments
-		var collision_scale = get_collision_scale_for_level(level)
-		var collision_radius = radius * collision_scale
-
+		# Fallback: Use simple circle collision matching sprite radius
 		# Setup main collision shape
 		if collision_shape:
 			var circle_shape = CircleShape2D.new()
-			circle_shape.radius = collision_radius
+			circle_shape.radius = radius
 			collision_shape.shape = circle_shape
 
-		# Setup merge area collision shape (100% of main radius for better detection)
+		# Setup merge area collision shape (same as main radius)
 		if merge_area_shape:
 			var merge_circle = CircleShape2D.new()
-			merge_circle.radius = collision_radius
+			merge_circle.radius = radius
 			merge_area_shape.shape = merge_circle
 
 	# Set physics material (low bounce for soft fruit feel)
@@ -149,7 +146,7 @@ func setup_physics() -> void:
 	can_sleep = true
 
 func try_generate_collision_from_sprite(target_radius: float) -> bool:
-	# Attempt to generate collision shape from sprite alpha channel
+	# Generate actual polygon collision shape from sprite alpha channel
 	# Returns true if successful, false to fallback to circle
 
 	var sprite_number = level + 1
@@ -185,60 +182,102 @@ func try_generate_collision_from_sprite(target_radius: float) -> bool:
 	if not image:
 		return false
 
-	# Sample the image to find the bounds of non-transparent pixels
-	var bounds = get_sprite_bounds(image)
-	if bounds.size.x == 0 or bounds.size.y == 0:
-		return false
+	# Generate polygon points from sprite outline
+	var polygon_points = generate_polygon_from_image(image, target_radius)
 
-	# Calculate the effective radius from bounds
-	var width = bounds.size.x
-	var height = bounds.size.y
-	var avg_size = (width + height) / 2.0
+	if polygon_points.size() < 3:
+		return false  # Need at least 3 points for a polygon
 
-	# Scale to match target radius
-	var sprite_to_world_scale = (target_radius * 2.0) / avg_size
-
-	# Use collision scale factor
-	var collision_scale = get_collision_scale_for_level(level)
-	var collision_radius = target_radius * collision_scale
-
-	# For now, use a fitted circle based on sprite bounds
-	# (More complex polygon generation can be added later)
+	# Create convex polygon collision shape
 	if collision_shape:
-		var circle_shape = CircleShape2D.new()
-		circle_shape.radius = collision_radius
-		collision_shape.shape = circle_shape
+		var poly_shape = ConvexPolygonShape2D.new()
+		poly_shape.points = polygon_points
+		collision_shape.shape = poly_shape
 
+	# Use same polygon for merge area
 	if merge_area_shape:
-		var merge_circle = CircleShape2D.new()
-		merge_circle.radius = collision_radius
-		merge_area_shape.shape = merge_circle
+		var merge_poly = ConvexPolygonShape2D.new()
+		merge_poly.points = polygon_points
+		merge_area_shape.shape = merge_poly
 
 	return true
 
-func get_sprite_bounds(image: Image) -> Rect2:
-	# Find the bounding box of non-transparent pixels
-	var min_x = image.get_width()
-	var max_x = 0
-	var min_y = image.get_height()
-	var max_y = 0
-	var found_pixel = false
+func generate_polygon_from_image(image: Image, target_radius: float) -> PackedVector2Array:
+	# Generate a convex polygon outline from the sprite's alpha channel
+	var img_width = image.get_width()
+	var img_height = image.get_height()
+	var center = Vector2(img_width / 2.0, img_height / 2.0)
 
-	# Sample every 4th pixel for performance
-	for y in range(0, image.get_height(), 4):
-		for x in range(0, image.get_width(), 4):
-			var color = image.get_pixel(x, y)
-			if color.a > 0.1:  # Non-transparent
-				found_pixel = true
-				min_x = min(min_x, x)
-				max_x = max(max_x, x)
-				min_y = min(min_y, y)
-				max_y = max(max_y, y)
+	# Sample points around the perimeter at different angles
+	var num_samples = 32  # Number of ray samples
+	var points = PackedVector2Array()
 
-	if not found_pixel:
-		return Rect2()
+	for i in range(num_samples):
+		var angle = (float(i) / num_samples) * TAU
+		var direction = Vector2(cos(angle), sin(angle))
 
-	return Rect2(min_x, min_y, max_x - min_x, max_y - min_y)
+		# Cast ray from center outward to find edge
+		var max_distance = max(img_width, img_height)
+		var edge_point = center
+
+		for dist in range(1, int(max_distance / 2)):
+			var sample_pos = center + direction * dist
+			var x = int(sample_pos.x)
+			var y = int(sample_pos.y)
+
+			# Check if we're outside bounds or hit transparent pixel
+			if x < 0 or x >= img_width or y < 0 or y >= img_height:
+				break
+
+			var pixel = image.get_pixel(x, y)
+			if pixel.a > 0.1:  # Solid pixel (lower threshold to catch more pixels)
+				edge_point = sample_pos
+			elif edge_point != center:
+				# We found the edge
+				break
+
+		# Convert from image space to world space
+		# Center the polygon and scale to target radius
+		var world_point = (edge_point - center) * (target_radius * 2.0 / img_width)
+
+		points.append(world_point)
+
+	# Ensure we have a valid convex hull
+	if points.size() >= 3:
+		return get_convex_hull(points)
+
+	return PackedVector2Array()
+
+func get_convex_hull(points: PackedVector2Array) -> PackedVector2Array:
+	# Simple convex hull using gift wrapping algorithm
+	if points.size() < 3:
+		return points
+
+	# Find the leftmost point
+	var leftmost_idx = 0
+	for i in range(points.size()):
+		if points[i].x < points[leftmost_idx].x:
+			leftmost_idx = i
+
+	var hull = PackedVector2Array()
+	var current = leftmost_idx
+
+	while true:
+		hull.append(points[current])
+		var next = (current + 1) % points.size()
+
+		for i in range(points.size()):
+			if i == current:
+				continue
+			var cross = (points[next] - points[current]).cross(points[i] - points[current])
+			if cross < 0:
+				next = i
+
+		current = next
+		if current == leftmost_idx or hull.size() > points.size():
+			break
+
+	return hull
 
 func _on_merge_area_entered(area: Area2D) -> void:
 	if not can_merge or is_merging:
@@ -350,10 +389,12 @@ func _on_merge_cooldown_timeout() -> void:
 
 func get_size_scale_for_level(fruit_level: int) -> float:
 	# Returns a size multiplier for specific fruit levels
-	# Fruits 7-8 are 1.4x larger, Fruits 9-11 are 1.19x (85% of 1.4x)
 	match fruit_level:
+		2, 3: return 1.2  # Fruits 3-4 are 1.2x larger
+		4, 5: return 1.26  # Fruits 5-6 are 1.26x (1.4 * 0.9)
 		6, 7: return 1.4  # Fruits 7-8 are 1.4x larger
-		8, 9, 10: return 1.19  # Fruits 9-11 are 85% of 1.4x (1.4 * 0.85 = 1.19)
+		8, 9: return 1.071  # Fruits 9-10 reduced by 10% (1.19 * 0.9)
+		10: return 1.19  # Fruit 11 stays at 1.19x
 		_: return 1.0  # Default - normal size
 
 func get_collision_scale_for_level(fruit_level: int) -> float:
@@ -368,8 +409,8 @@ func get_collision_scale_for_level(fruit_level: int) -> float:
 		4: return 0.87  # Chimpanzee Banana - tighter
 		5: return 0.86  # Turtle Dragonfruit - tighter
 		6: return 0.85  # Dragonfruit - tighter
-		7: return 0.60  # Level 7 (particularly bad) - very tight for left/right
-		8: return 0.83  # Grape Medusa - tighter
-		9: return 0.85  # Crocodile Pen - tighter
+		7: return 0.45  # Level 7 - extremely tight for left/right
+		8: return 1.15  # Grape Medusa - larger to fully cover sprite with legs (was 0.95)
+		9: return 0.92  # Crocodile Pen - increased from 0.85 to prevent clipping
 		10: return 0.87  # Zebra/Watermelon - tighter
 		_: return 1.0  # Default - no change

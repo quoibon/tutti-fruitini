@@ -43,7 +43,7 @@ func get_default_data() -> Dictionary:
 		"shake_count": 50,
 		"tutorial_seen": false,
 		"settings": {
-			"music_volume": 0.8,
+			"music_volume": 0.4,
 			"sfx_volume": 1.0,
 			"music_enabled": true,
 			"sfx_enabled": true,

@@ -274,8 +274,10 @@ func show_pause_menu() -> void:
 
 func get_preview_size_scale(fruit_level: int) -> float:
 	# Match the size scaling in Fruit.gd
-	# Fruits 7-8 are 1.4x larger, Fruits 9-11 are 1.19x (85% of 1.4x)
 	match fruit_level:
+		2, 3: return 1.2  # Fruits 3-4 are 1.2x larger
+		4, 5: return 1.26  # Fruits 5-6 are 1.26x (1.4 * 0.9)
 		6, 7: return 1.4  # Fruits 7-8 are 1.4x larger
-		8, 9, 10: return 1.19  # Fruits 9-11 are 85% of 1.4x
+		8, 9: return 1.071  # Fruits 9-10 reduced by 10% (1.19 * 0.9)
+		10: return 1.19  # Fruit 11 stays at 1.19x
 		_: return 1.0

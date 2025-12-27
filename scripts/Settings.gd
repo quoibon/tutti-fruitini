@@ -13,6 +13,9 @@ func _ready() -> void:
 	# Set process mode to ALWAYS so this works while paused
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
+	# Set layer to appear above pause menu and other UI
+	layer = 10
+
 	# Load current settings
 	load_settings()
 

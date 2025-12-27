@@ -8,6 +8,9 @@ extends CanvasLayer
 @onready var menu_button = $Panel/VBoxContainer/MenuButton
 
 func _ready() -> void:
+	# Set layer to appear above game UI
+	layer = 5
+
 	# Connect buttons
 	restart_button.pressed.connect(_on_restart_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
@@ -26,6 +29,8 @@ func _ready() -> void:
 
 func _on_restart_pressed() -> void:
 	AudioManager.play_click_sound()
+	# Stop menu music before restarting game
+	AudioManager.stop_music()
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
 func _on_menu_pressed() -> void:

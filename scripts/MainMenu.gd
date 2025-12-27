@@ -33,6 +33,8 @@ func _ready() -> void:
 
 func _on_play_pressed() -> void:
 	AudioManager.play_click_sound()
+	# Stop menu music before starting game
+	AudioManager.stop_music()
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
 func _on_settings_pressed() -> void:

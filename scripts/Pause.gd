@@ -15,6 +15,9 @@ func _ready() -> void:
 	# Set process mode to ALWAYS so this works while paused
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
+	# Set layer to appear above game UI
+	layer = 1
+
 	# Connect buttons
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
@@ -50,6 +53,8 @@ func _on_settings_pressed() -> void:
 func _on_menu_pressed() -> void:
 	AudioManager.play_click_sound()
 	resume_game()
+	# Switch to menu music before changing scenes
+	AudioManager.stop_music()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
 func resume_game() -> void:
