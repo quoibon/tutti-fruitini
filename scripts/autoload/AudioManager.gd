@@ -4,7 +4,7 @@ extends Node
 
 var music_player: AudioStreamPlayer
 var sfx_players: Array[AudioStreamPlayer] = []
-const SFX_POOL_SIZE = 8
+const SFX_POOL_SIZE = 15  # Increased to support multiple simultaneous merges
 
 # Audio settings
 var music_volume: float = 0.8
