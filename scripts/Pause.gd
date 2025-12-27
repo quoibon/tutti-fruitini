@@ -12,6 +12,9 @@ var settings_scene: PackedScene
 func _ready() -> void:
 	settings_scene = preload("res://scenes/Settings.tscn")
 
+	# Set process mode to ALWAYS so this works while paused
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Connect buttons
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
@@ -20,6 +23,13 @@ func _ready() -> void:
 
 	# Pause the game
 	get_tree().paused = true
+
+func _input(event: InputEvent) -> void:
+	# Handle ESC to resume
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_ESCAPE:
+			resume_game()
+			get_viewport().set_input_as_handled()
 
 func _on_resume_pressed() -> void:
 	AudioManager.play_click_sound()

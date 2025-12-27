@@ -10,6 +10,9 @@ extends CanvasLayer
 @onready var back_button = $Panel/VBoxContainer/BackButton
 
 func _ready() -> void:
+	# Set process mode to ALWAYS so this works while paused
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Load current settings
 	load_settings()
 
@@ -25,7 +28,7 @@ func load_settings() -> void:
 	var settings = SaveManager.get_audio_settings()
 
 	# Set slider values (0.0-1.0 to 0-100)
-	music_volume_slider.value = settings.get("music_volume", 0.6) * 100
+	music_volume_slider.value = settings.get("music_volume", 0.4) * 100
 	sfx_volume_slider.value = settings.get("sfx_volume", 1.0) * 100
 
 	# Set toggle states

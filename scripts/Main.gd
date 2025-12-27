@@ -16,7 +16,6 @@ extends Node2D
 @onready var next_fruit_preview = $GameplayArea/NextFruitPreview
 @onready var shake_button = $UI/ShakeButton
 @onready var refill_button = $UI/RefillButton
-@onready var pause_button = $UI/PauseButton  # Will be created in scene
 
 # Object pools
 var fruit_pool: FruitPool
@@ -52,7 +51,11 @@ func _ready() -> void:
 	shake_manager.shake_count_changed.connect(_on_shake_count_changed)
 	shake_button.pressed.connect(_on_shake_button_pressed)
 	refill_button.pressed.connect(_on_refill_button_pressed)
-	pause_button.pressed.connect(_on_pause_button_pressed)
+
+	# Connect pause button if it exists
+	var pause_button = get_node_or_null("UI/PauseButton")
+	if pause_button:
+		pause_button.pressed.connect(_on_pause_button_pressed)
 
 	# Connect AdManager signals
 	AdManager.reward_earned.connect(_on_ad_reward_earned)
@@ -72,6 +75,14 @@ func _ready() -> void:
 
 	# Play game music
 	AudioManager.play_game_music()
+
+func _input(event: InputEvent) -> void:
+	# Handle pause with ESC key
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_ESCAPE:
+			if not GameManager.is_game_over:
+				show_pause_menu()
+				get_viewport().set_input_as_handled()
 
 func _process(_delta: float) -> void:
 	# Update preview position to follow mouse
@@ -263,7 +274,8 @@ func show_pause_menu() -> void:
 
 func get_preview_size_scale(fruit_level: int) -> float:
 	# Match the size scaling in Fruit.gd
-	# Fruits 7-11 (levels 6-10) are made 1.4x larger
+	# Fruits 7-8 are 1.4x larger, Fruits 9-11 are 1.19x (85% of 1.4x)
 	match fruit_level:
-		6, 7, 8, 9, 10: return 1.4
+		6, 7: return 1.4  # Fruits 7-8 are 1.4x larger
+		8, 9, 10: return 1.19  # Fruits 9-11 are 85% of 1.4x
 		_: return 1.0

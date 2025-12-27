@@ -20,17 +20,16 @@ func _ready() -> void:
 	settings_button.pressed.connect(_on_settings_pressed)
 	how_to_play_button.pressed.connect(_on_how_to_play_pressed)
 
+	# Connect quit button if it exists
+	var quit_button = get_node_or_null("VBoxContainer/QuitButton")
+	if quit_button:
+		quit_button.pressed.connect(_on_quit_pressed)
+
 	# Load and display high score
 	high_score_label.text = "High Score: " + str(SaveManager.get_high_score())
 
 	# Play menu music
 	AudioManager.play_menu_music()
-
-	# Show tutorial on first launch
-	if not SaveManager.has_seen_tutorial():
-		# Delay tutorial slightly so menu is visible first
-		await get_tree().create_timer(0.5).timeout
-		show_tutorial()
 
 func _on_play_pressed() -> void:
 	AudioManager.play_click_sound()
@@ -48,3 +47,7 @@ func _on_how_to_play_pressed() -> void:
 func show_tutorial() -> void:
 	var tutorial = tutorial_scene.instantiate()
 	add_child(tutorial)
+
+func _on_quit_pressed() -> void:
+	AudioManager.play_click_sound()
+	get_tree().quit()

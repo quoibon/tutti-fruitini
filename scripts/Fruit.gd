@@ -113,22 +113,25 @@ func setup_physics() -> void:
 	var size_scale = get_size_scale_for_level(level)
 	radius = radius * size_scale
 
-	# Collision radius adjustments per fruit level to better match sprites
-	# Some fruits have visual elements that extend beyond the solid body
-	var collision_scale = get_collision_scale_for_level(level)
-	var collision_radius = radius * collision_scale
+	# Try to generate collision from sprite, fallback to simple circle
+	var collision_generated = try_generate_collision_from_sprite(radius)
 
-	# Setup main collision shape
-	if collision_shape:
-		var circle_shape = CircleShape2D.new()
-		circle_shape.radius = collision_radius
-		collision_shape.shape = circle_shape
+	if not collision_generated:
+		# Fallback: Use simple circle collision with adjustments
+		var collision_scale = get_collision_scale_for_level(level)
+		var collision_radius = radius * collision_scale
 
-	# Setup merge area collision shape (100% of main radius for better detection)
-	if merge_area_shape:
-		var merge_circle = CircleShape2D.new()
-		merge_circle.radius = collision_radius
-		merge_area_shape.shape = merge_circle
+		# Setup main collision shape
+		if collision_shape:
+			var circle_shape = CircleShape2D.new()
+			circle_shape.radius = collision_radius
+			collision_shape.shape = circle_shape
+
+		# Setup merge area collision shape (100% of main radius for better detection)
+		if merge_area_shape:
+			var merge_circle = CircleShape2D.new()
+			merge_circle.radius = collision_radius
+			merge_area_shape.shape = merge_circle
 
 	# Set physics material (low bounce for soft fruit feel)
 	var physics_mat = PhysicsMaterial.new()
@@ -144,6 +147,98 @@ func setup_physics() -> void:
 	contact_monitor = true
 	max_contacts_reported = 8
 	can_sleep = true
+
+func try_generate_collision_from_sprite(target_radius: float) -> bool:
+	# Attempt to generate collision shape from sprite alpha channel
+	# Returns true if successful, false to fallback to circle
+
+	var sprite_number = level + 1
+	var sprite_files = {
+		1: "1.BlueberrinniOctopussini",
+		2: "2.SlimoLiAppluni",
+		3: "3.PerochelloLemonchello",
+		4: "4.PenguinoCocosino",
+		5: "5.ChimpanziniBananini",
+		6: "6.TorrtuginniDragonfrutinni",
+		7: "7.UDinDinDinDinDun",
+		8: "8.GraipussiMedussi",
+		9: "9.CrocodildoPen",
+		10: "10.ZibraZubraZibralini",
+		11: "11.StrawberryElephant"
+	}
+
+	if not sprite_files.has(sprite_number):
+		return false
+
+	var sprite_path = "res://assets/sprites/fruits/" + sprite_files[sprite_number] + ".png"
+
+	if not FileAccess.file_exists(sprite_path):
+		return false
+
+	# Load the texture
+	var texture = load(sprite_path) as Texture2D
+	if not texture:
+		return false
+
+	# Get the image from texture
+	var image = texture.get_image()
+	if not image:
+		return false
+
+	# Sample the image to find the bounds of non-transparent pixels
+	var bounds = get_sprite_bounds(image)
+	if bounds.size.x == 0 or bounds.size.y == 0:
+		return false
+
+	# Calculate the effective radius from bounds
+	var width = bounds.size.x
+	var height = bounds.size.y
+	var avg_size = (width + height) / 2.0
+
+	# Scale to match target radius
+	var sprite_to_world_scale = (target_radius * 2.0) / avg_size
+
+	# Use collision scale factor
+	var collision_scale = get_collision_scale_for_level(level)
+	var collision_radius = target_radius * collision_scale
+
+	# For now, use a fitted circle based on sprite bounds
+	# (More complex polygon generation can be added later)
+	if collision_shape:
+		var circle_shape = CircleShape2D.new()
+		circle_shape.radius = collision_radius
+		collision_shape.shape = circle_shape
+
+	if merge_area_shape:
+		var merge_circle = CircleShape2D.new()
+		merge_circle.radius = collision_radius
+		merge_area_shape.shape = merge_circle
+
+	return true
+
+func get_sprite_bounds(image: Image) -> Rect2:
+	# Find the bounding box of non-transparent pixels
+	var min_x = image.get_width()
+	var max_x = 0
+	var min_y = image.get_height()
+	var max_y = 0
+	var found_pixel = false
+
+	# Sample every 4th pixel for performance
+	for y in range(0, image.get_height(), 4):
+		for x in range(0, image.get_width(), 4):
+			var color = image.get_pixel(x, y)
+			if color.a > 0.1:  # Non-transparent
+				found_pixel = true
+				min_x = min(min_x, x)
+				max_x = max(max_x, x)
+				min_y = min(min_y, y)
+				max_y = max(max_y, y)
+
+	if not found_pixel:
+		return Rect2()
+
+	return Rect2(min_x, min_y, max_x - min_x, max_y - min_y)
 
 func _on_merge_area_entered(area: Area2D) -> void:
 	if not can_merge or is_merging:
@@ -255,9 +350,10 @@ func _on_merge_cooldown_timeout() -> void:
 
 func get_size_scale_for_level(fruit_level: int) -> float:
 	# Returns a size multiplier for specific fruit levels
-	# Fruits 7-11 (levels 6-10) are made 1.4x larger
+	# Fruits 7-8 are 1.4x larger, Fruits 9-11 are 1.19x (85% of 1.4x)
 	match fruit_level:
-		6, 7, 8, 9, 10: return 1.4  # Fruits 7-11 are 1.4x larger
+		6, 7: return 1.4  # Fruits 7-8 are 1.4x larger
+		8, 9, 10: return 1.19  # Fruits 9-11 are 85% of 1.4x (1.4 * 0.85 = 1.19)
 		_: return 1.0  # Default - normal size
 
 func get_collision_scale_for_level(fruit_level: int) -> float:

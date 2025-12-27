@@ -7,7 +7,7 @@ var sfx_players: Array[AudioStreamPlayer] = []
 const SFX_POOL_SIZE = 15  # Increased to support multiple simultaneous merges
 
 # Audio settings
-var music_volume: float = 0.6
+var music_volume: float = 0.4
 var sfx_volume: float = 1.0
 var music_enabled: bool = true
 var sfx_enabled: bool = true
@@ -193,7 +193,7 @@ func save_settings() -> void:
 
 func load_settings() -> void:
 	var settings = SaveManager.get_audio_settings()
-	music_volume = settings.get("music_volume", 0.6)
+	music_volume = settings.get("music_volume", 0.4)
 	sfx_volume = settings.get("sfx_volume", 1.0)
 	music_enabled = settings.get("music_enabled", true)
 	sfx_enabled = settings.get("sfx_enabled", true)
