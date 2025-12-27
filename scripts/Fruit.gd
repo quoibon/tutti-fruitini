@@ -151,8 +151,9 @@ func _on_merge_area_entered(area: Area2D) -> void:
 
 	# Check velocity threshold (prevent fast mid-air merges)
 	# Allow merging if fruits are moving slowly or have settled
+	# Increased threshold to allow merging even when fruits are still settling
 	var combined_velocity = (linear_velocity.length() + other_fruit.linear_velocity.length()) / 2.0
-	if combined_velocity > 300:
+	if combined_velocity > 500:  # Increased from 300 to 500
 		return
 
 	# Only let one fruit trigger the merge (prevent duplicate merges)

@@ -25,5 +25,5 @@ monitorable = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MergeArea"]
 
 [node name="MergeCooldownTimer" type="Timer" parent="."]
-wait_time = 0.05
+wait_time = 0.15
 one_shot = true

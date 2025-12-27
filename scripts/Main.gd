@@ -125,11 +125,51 @@ func update_next_fruit_ui() -> void:
 	var display_name = fruit_info.get("display_name", "Unknown")
 	next_fruit_label.text = "Next: " + display_name
 
-	# Update visual preview
+	# Update visual preview with actual sprite
 	var radius = fruit_info.get("radius", 16)
-	var color = Color(fruit_info.get("color", "#FFFFFF"))
-	var texture = Utils.generate_circle_texture(radius, color)
-	next_fruit_preview.texture = texture
+	var sprite_loaded = try_load_preview_sprite(next_level)
+
+	if not sprite_loaded:
+		# Fallback: colored circle
+		var color = Color(fruit_info.get("color", "#FFFFFF"))
+		var texture = Utils.generate_circle_texture(radius, color)
+		next_fruit_preview.texture = texture
+
+	# Scale preview to match target size (sprites are 1024x1024)
+	var target_scale = (radius * 2.0) / 1024.0
+	next_fruit_preview.scale = Vector2(target_scale, target_scale)
+
+func try_load_preview_sprite(level: int) -> bool:
+	# Map same as Fruit.gd
+	var sprite_number = level + 1
+	var sprite_files = {
+		1: "1.BlueberrinniOctopussini",
+		2: "2.SlimoLiAppluni",
+		3: "3.PerochelloLemonchello",
+		4: "4.PenguinoCocosino",
+		5: "5.ChimpanziniBananini",
+		6: "6.TorrtuginniDragonfrutinni",
+		7: "7.UDinDinDinDinDun",
+		8: "8.GraipussiMedussi",
+		9: "9.CrocodildoPen",
+		10: "10.ZibraZubraZibralini",
+		11: "11.StrawberryElephant"
+	}
+
+	if not sprite_files.has(sprite_number):
+		return false
+
+	var sprite_path = "res://assets/sprites/fruits/" + sprite_files[sprite_number] + ".png"
+
+	if not FileAccess.file_exists(sprite_path):
+		return false
+
+	var texture = load(sprite_path)
+	if texture:
+		next_fruit_preview.texture = texture
+		return true
+
+	return false
 
 func _on_game_started() -> void:
 	print("Game started!")
