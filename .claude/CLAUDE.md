@@ -42,21 +42,26 @@ velocity_retention = 0.9  # 90% momentum kept (was 0.5)
 | Level | Name | Radius | Score | Spawn % | Size Multiplier |
 |-------|------|--------|-------|---------|-----------------|
 | 0 | Cherry | 36px | 1 | 35% | 1.0x |
-| 1 | Strawberry | 42px | 3 | 30% | 1.0x |
-| 2 | Grape | 50px | 6 | 20% | 1.0x |
-| 3 | Orange | 67px | 10 | 10% | 1.0x |
-| 4 | Lemon | 84px | 15 | 5% | 1.0x |
-| 5 | Apple | 101px | 21 | 0% | 1.0x |
-| 6 | Pear | 122px | 28 | 0% | 1.4x ⬆️ |
-| 7 | Peach | 138px | 36 | 0% | 1.4x ⬆️ |
-| 8 | Pineapple | 155px | 45 | 0% | 1.19x ⬆️ |
-| 9 | Melon | 173px | 55 | 0% | 1.19x ⬆️ |
-| 10 | Watermelon | 208px | 100 | 0% | 1.19x ⬆️ |
+| 1 | Strawberry | 42px | 3 | 30% | 1.3x ⬆️ |
+| 2 | Grape | 50px | 6 | 20% | 1.2x ⬆️ |
+| 3 | Orange | 67px | 10 | 10% | 1.2x ⬆️ |
+| 4 | Lemon | 84px | 15 | 5% | 1.134x ⬆️ |
+| 5 | Apple | 101px | 21 | 0% | 1.134x ⬆️ |
+| 6 | Pear | 122px | 28 | 0% | 0.98x |
+| 7 | Peach | 138px | 36 | 0% | 0.84x ⬇️ |
+| 8 | Pineapple | 155px | 45 | 0% | 0.857x ⬇️ |
+| 9 | Melon | 173px | 55 | 0% | 0.857x ⬇️ |
+| 10 | Watermelon | 208px | 500 | 0% | 0.911x ⬇️ |
 
-**Collision Detection:** Auto-generated from sprite alpha channel (85% of 1.4x = 1.19x for fruits 9-11)
-- Fruits 0-5: Collision radius 85-90% of sprite radius
-- Fruit 6-7 (levels 6-7): 60-85% of sprite radius
-- Fruits 8-10 (levels 8-10): 83-87% of sprite radius
+**Special Merge Behavior:**
+- When two Watermelons (level 10) merge, they disappear without spawning a new fruit
+- Awards 5x bonus points instead of standard 2x
+- Plays special sound effect (67.mp3)
+
+**Collision Detection:** Auto-generated polygon shapes from sprite alpha channel
+- 32-ray sampling from sprite center to find edges (alpha > 0.1)
+- Convex hull algorithm creates tight-fitting collision shapes
+- Shapes match sprite outline 1:1 (no additional scaling applied)
 
 ### Collision Layers
 - **1 (Walls):** StaticBody2D container
@@ -107,7 +112,7 @@ Main.tscn
 - **Cooldown:** 0.3s between uses (allows rapid stacking)
 - **Impulse:** Random vector (450 strength, 2x original)
   - Horizontal: ±450 px/s
-  - Vertical: -303.75 px/s (4.5x original, 67.5% of horizontal)
+  - Vertical: -455.6 px/s (6.75x original, 101.25% of horizontal)
 - **Feedback:** Camera shake (30px, 2x original), haptic (100ms), particles, sound
 - **Refill:** Rewarded ad OR free after 30s timer
 
