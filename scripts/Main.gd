@@ -134,8 +134,8 @@ func update_next_fruit_ui() -> void:
 	var next_level = spawner.get_next_fruit_level()
 	var fruit_info = GameManager.get_fruit_info(next_level)
 
-	# Hide text label - only show visual preview
-	next_fruit_label.text = ""
+	# Show just "Next:" label without fruit name - image shows on cursor
+	next_fruit_label.text = "Next:"
 
 	# Update visual preview with actual sprite
 	var radius = fruit_info.get("radius", 16)
