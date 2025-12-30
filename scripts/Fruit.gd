@@ -394,8 +394,9 @@ func get_size_scale_for_level(fruit_level: int) -> float:
 	match fruit_level:
 		1: return 1.3  # Fruit 2 - 1.3x larger
 		2, 3: return 1.2  # Fruits 3-4 are 1.2x larger
-		4, 5: return 1.134  # Fruits 5-6 - 90% of 1.26
-		6: return 0.98  # Fruit 7 - 70% of 1.4
+		4: return 1.134  # Fruit 5 - 90% of 1.26
+		5: return 1.021  # Fruit 6 - 90% of 1.134
+		6: return 1.078  # Fruit 7 - 110% of 0.98
 		7: return 0.84  # Fruit 8 - 60% of 1.4
 		8: return 0.857  # Fruit 9 - reduced by 20% from 1.071
 		9: return 0.857  # Fruit 10 - reduced by 20% from 1.071
