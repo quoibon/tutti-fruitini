@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var music_toggle = $Panel/VBoxContainer/MusicToggleContainer/MusicToggle
 @onready var sfx_toggle = $Panel/VBoxContainer/SFXToggleContainer/SFXToggle
 @onready var vibration_toggle = $Panel/VBoxContainer/VibrationToggleContainer/VibrationToggle
+@onready var announce_drops_toggle = $Panel/VBoxContainer/AnnounceDropsContainer/AnnounceDropsToggle
 @onready var back_button = $Panel/VBoxContainer/BackButton
 
 func _ready() -> void:
@@ -25,6 +26,7 @@ func _ready() -> void:
 	music_toggle.toggled.connect(_on_music_toggled)
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
 	vibration_toggle.toggled.connect(_on_vibration_toggled)
+	announce_drops_toggle.toggled.connect(_on_announce_drops_toggled)
 	back_button.pressed.connect(_on_back_pressed)
 
 func load_settings() -> void:
@@ -38,6 +40,7 @@ func load_settings() -> void:
 	music_toggle.button_pressed = settings.get("music_enabled", true)
 	sfx_toggle.button_pressed = settings.get("sfx_enabled", true)
 	vibration_toggle.button_pressed = SaveManager.get_vibration_enabled()
+	announce_drops_toggle.button_pressed = SaveManager.get_announce_all_drops()
 
 func _on_music_volume_changed(value: float) -> void:
 	# Convert 0-100 to 0.0-1.0
@@ -66,6 +69,10 @@ func _on_vibration_toggled(enabled: bool) -> void:
 	# Test vibration when enabled
 	if enabled:
 		Input.vibrate_handheld(100)
+
+func _on_announce_drops_toggled(enabled: bool) -> void:
+	SaveManager.save_announce_all_drops(enabled)
+	AudioManager.play_click_sound()
 
 func _on_back_pressed() -> void:
 	AudioManager.play_click_sound()

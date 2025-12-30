@@ -47,7 +47,8 @@ func get_default_data() -> Dictionary:
 			"sfx_volume": 1.0,
 			"music_enabled": true,
 			"sfx_enabled": true,
-			"vibration_enabled": true
+			"vibration_enabled": true,
+			"announce_all_drops": false
 		},
 		"stats": {
 			"games_played": 0,
@@ -96,6 +97,18 @@ func get_vibration_enabled() -> bool:
 	if current_data.has("settings"):
 		return current_data["settings"].get("vibration_enabled", true)
 	return true
+
+func save_announce_all_drops(enabled: bool) -> void:
+	if not current_data.has("settings"):
+		current_data["settings"] = {}
+
+	current_data["settings"]["announce_all_drops"] = enabled
+	save_data()
+
+func get_announce_all_drops() -> bool:
+	if current_data.has("settings"):
+		return current_data["settings"].get("announce_all_drops", false)
+	return false
 
 func increment_games_played() -> void:
 	if not current_data.has("stats"):

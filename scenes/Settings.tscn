@@ -136,6 +136,22 @@ layout_mode = 2
 button_pressed = true
 text = "ON"
 
+[node name="AnnounceDropsContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="AnnounceDropsLabel" type="Label" parent="Panel/VBoxContainer/AnnounceDropsContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Announce All Drops"
+vertical_alignment = 1
+
+[node name="AnnounceDropsToggle" type="CheckButton" parent="Panel/VBoxContainer/AnnounceDropsContainer"]
+layout_mode = 2
+button_pressed = false
+text = "OFF"
+
 [node name="Spacer3" type="Control" parent="Panel/VBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

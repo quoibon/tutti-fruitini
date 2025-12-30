@@ -147,6 +147,7 @@ text = "Next: Cherry"
 visible = false
 
 [node name="NextFruitSprite" type="Sprite2D" parent="UI"]
+visible = false
 position = Vector2(100, 180)
 
 [node name="ComboLabel" type="Label" parent="UI"]
