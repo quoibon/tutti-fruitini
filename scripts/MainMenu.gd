@@ -45,7 +45,7 @@ func randomize_title_icons() -> void:
 	load_fruit_icon(left_icon, left_fruit)
 	load_fruit_icon(right_icon, right_fruit)
 
-func load_fruit_icon(sprite: Sprite2D, fruit_level: int) -> void:
+func load_fruit_icon(sprite: TextureRect, fruit_level: int) -> void:
 	var sprite_files = {
 		0: "1.BlueberrinniOctopussini",
 		1: "2.SlimoLiAppluni",

@@ -41,20 +41,28 @@ size_flags_vertical = 3
 [node name="TitleContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 alignment = 1
+theme_override_constants/separation = 20
 
-[node name="LeftIcon" type="Sprite2D" parent="VBoxContainer/TitleContainer"]
-scale = Vector2(0.08, 0.08)
+[node name="LeftIcon" type="TextureRect" parent="VBoxContainer/TitleContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer/TitleContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 56
-text = " TUTTI FRUTTINI "
+theme_override_font_sizes/font_size = 40
+text = "Italian BrainRot:
+Tutti Fruttini Combinasion"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="RightIcon" type="Sprite2D" parent="VBoxContainer/TitleContainer"]
-scale = Vector2(0.08, 0.08)
+[node name="RightIcon" type="TextureRect" parent="VBoxContainer/TitleContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="SubtitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
