@@ -2,9 +2,12 @@ extends Control
 
 ## MainMenu - Main menu scene with play button
 
-@onready var play_button = $VBoxContainer/PlayButton
+@onready var play_button = $VBoxContainer/PlayButton/PlayLabel
+@onready var play_left_icon = $VBoxContainer/PlayButton/LeftIcon
+@onready var play_right_icon = $VBoxContainer/PlayButton/RightIcon
 @onready var settings_button = $VBoxContainer/SettingsButton
 @onready var how_to_play_button = $VBoxContainer/HowToPlayButton  # Will be created in scene
+@onready var quit_button = $VBoxContainer/QuitButton
 @onready var high_score_label = $VBoxContainer/HighScoreLabel
 @onready var fruit_icon = $VBoxContainer/FruitIcon
 
@@ -18,16 +21,13 @@ func _ready() -> void:
 
 	# Set random fruit icons
 	randomize_title_icons()
+	randomize_play_button_icons()
 
 	# Connect buttons
 	play_button.pressed.connect(_on_play_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	how_to_play_button.pressed.connect(_on_how_to_play_pressed)
-
-	# Connect quit button if it exists
-	var quit_button = get_node_or_null("VBoxContainer/QuitButton")
-	if quit_button:
-		quit_button.pressed.connect(_on_quit_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
 
 	# Load and display high score
 	high_score_label.text = "High Score: " + str(SaveManager.get_high_score())
@@ -41,6 +41,15 @@ func randomize_title_icons() -> void:
 
 	# Load and set sprite
 	load_fruit_icon(fruit_icon, random_fruit)
+
+func randomize_play_button_icons() -> void:
+	# Pick two random fruit levels (0-10)
+	var left_fruit = randi() % 11
+	var right_fruit = randi() % 11
+
+	# Load and set sprites
+	load_fruit_icon(play_left_icon, left_fruit)
+	load_fruit_icon(play_right_icon, right_fruit)
 
 func load_fruit_icon(sprite: TextureRect, fruit_level: int) -> void:
 	var sprite_files = {

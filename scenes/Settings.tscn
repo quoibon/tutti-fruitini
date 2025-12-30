@@ -38,7 +38,7 @@ theme_override_constants/separation = 30
 
 [node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 64
 text = "SETTINGS"
 horizontal_alignment = 1
 
@@ -51,9 +51,9 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="MusicVolumeLabel" type="Label" parent="Panel/VBoxContainer/MusicVolumeContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Music Volume"
 vertical_alignment = 1
 
@@ -70,9 +70,9 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="SFXVolumeLabel" type="Label" parent="Panel/VBoxContainer/SFXVolumeContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "SFX Volume"
 vertical_alignment = 1
 
@@ -93,14 +93,15 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="MusicToggleLabel" type="Label" parent="Panel/VBoxContainer/MusicToggleContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Music"
 vertical_alignment = 1
 
 [node name="MusicToggle" type="CheckButton" parent="Panel/VBoxContainer/MusicToggleContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 button_pressed = true
 text = "ON"
 
@@ -109,14 +110,15 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="SFXToggleLabel" type="Label" parent="Panel/VBoxContainer/SFXToggleContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Sound Effects"
 vertical_alignment = 1
 
 [node name="SFXToggle" type="CheckButton" parent="Panel/VBoxContainer/SFXToggleContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 button_pressed = true
 text = "ON"
 
@@ -125,14 +127,15 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="VibrationToggleLabel" type="Label" parent="Panel/VBoxContainer/VibrationToggleContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Vibration"
 vertical_alignment = 1
 
 [node name="VibrationToggle" type="CheckButton" parent="Panel/VBoxContainer/VibrationToggleContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 button_pressed = true
 text = "ON"
 
@@ -141,14 +144,15 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="AnnounceDropsLabel" type="Label" parent="Panel/VBoxContainer/AnnounceDropsContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Announce All Drops"
 vertical_alignment = 1
 
 [node name="AnnounceDropsToggle" type="CheckButton" parent="Panel/VBoxContainer/AnnounceDropsContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 button_pressed = false
 text = "OFF"
 
@@ -157,8 +161,8 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
 [node name="BackButton" type="Button" parent="Panel/VBoxContainer"]
-custom_minimum_size = Vector2(300, 80)
+custom_minimum_size = Vector2(400, 100)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 40
 text = "BACK"
