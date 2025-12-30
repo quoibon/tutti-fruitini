@@ -38,18 +38,7 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="TitleContainer" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-alignment = 1
-theme_override_constants/separation = 20
-
-[node name="LeftIcon" type="TextureRect" parent="VBoxContainer/TitleContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="TitleLabel" type="Label" parent="VBoxContainer/TitleContainer"]
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 40
@@ -58,9 +47,14 @@ Tutti Fruttini Combinasion"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="RightIcon" type="TextureRect" parent="VBoxContainer/TitleContainer"]
-custom_minimum_size = Vector2(80, 80)
+[node name="Spacer1_5" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
+
+[node name="FruitIcon" type="TextureRect" parent="VBoxContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
 
