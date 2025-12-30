@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://b8vnyak2m5wqp"]
+[gd_scene load_steps=3 format=3 uid="uid://b8vnyak2m5wqp"]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1_mainmenu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fruits/11.StrawberryElephant.png" id="2_watermelon"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -38,13 +39,25 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+[node name="TitleContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LeftIcon" type="Sprite2D" parent="VBoxContainer/TitleContainer"]
+texture = ExtResource("2_watermelon")
+scale = Vector2(0.08, 0.08)
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/TitleContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 56
-text = "TUTTI FRUTTINI"
+text = " TUTTI FRUTTINI "
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="RightIcon" type="Sprite2D" parent="VBoxContainer/TitleContainer"]
+texture = ExtResource("2_watermelon")
+scale = Vector2(0.08, 0.08)
 
 [node name="SubtitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
