@@ -133,8 +133,9 @@ func update_combo_ui() -> void:
 func update_next_fruit_ui() -> void:
 	var next_level = spawner.get_next_fruit_level()
 	var fruit_info = GameManager.get_fruit_info(next_level)
-	var display_name = fruit_info.get("display_name", "Unknown")
-	next_fruit_label.text = "Next: " + display_name
+
+	# Hide text label - only show visual preview
+	next_fruit_label.text = ""
 
 	# Update visual preview with actual sprite
 	var radius = fruit_info.get("radius", 16)
