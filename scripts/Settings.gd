@@ -2,13 +2,15 @@ extends CanvasLayer
 
 ## Settings - Settings menu for audio and game options
 
-@onready var music_volume_slider = $Panel/VBoxContainer/MusicVolumeContainer/MusicVolumeSlider
-@onready var sfx_volume_slider = $Panel/VBoxContainer/SFXVolumeContainer/SFXVolumeSlider
-@onready var music_toggle = $Panel/VBoxContainer/MusicToggleContainer/MusicToggle
-@onready var sfx_toggle = $Panel/VBoxContainer/SFXToggleContainer/SFXToggle
-@onready var vibration_toggle = $Panel/VBoxContainer/VibrationToggleContainer/VibrationToggle
-@onready var announce_drops_toggle = $Panel/VBoxContainer/AnnounceDropsContainer/AnnounceDropsToggle
-@onready var back_button = $Panel/VBoxContainer/BackButton
+@onready var music_volume_slider = $Panel/ScrollContainer/VBoxContainer/MusicVolumeContainer/MusicVolumeSlider
+@onready var sfx_volume_slider = $Panel/ScrollContainer/VBoxContainer/SFXVolumeContainer/SFXVolumeSlider
+@onready var music_toggle = $Panel/ScrollContainer/VBoxContainer/MusicToggleContainer/MusicToggle
+@onready var sfx_toggle = $Panel/ScrollContainer/VBoxContainer/SFXToggleContainer/SFXToggle
+@onready var vibration_toggle = $Panel/ScrollContainer/VBoxContainer/VibrationToggleContainer/VibrationToggle
+@onready var announce_drops_toggle = $Panel/ScrollContainer/VBoxContainer/AnnounceDropsContainer/AnnounceDropsToggle
+@onready var developer_logo_button = $Panel/ScrollContainer/VBoxContainer/DeveloperContainer/DeveloperLogoButton
+@onready var music_link_button = $Panel/ScrollContainer/VBoxContainer/MusicContainer/MusicLinkButton
+@onready var back_button = $Panel/ScrollContainer/VBoxContainer/BackButton
 
 func _ready() -> void:
 	# Set process mode to ALWAYS so this works while paused
@@ -20,6 +22,13 @@ func _ready() -> void:
 	# Load current settings
 	load_settings()
 
+	# Load developer logo
+	var logo_texture = ResourceLoader.load("res://assets/sprites/ui/bonsai_logo.png")
+	if logo_texture:
+		developer_logo_button.texture_normal = logo_texture
+	else:
+		print("Warning: Could not load developer logo")
+
 	# Connect signals
 	music_volume_slider.value_changed.connect(_on_music_volume_changed)
 	sfx_volume_slider.value_changed.connect(_on_sfx_volume_changed)
@@ -28,6 +37,12 @@ func _ready() -> void:
 	vibration_toggle.toggled.connect(_on_vibration_toggled)
 	announce_drops_toggle.toggled.connect(_on_announce_drops_toggled)
 	back_button.pressed.connect(_on_back_pressed)
+
+	# Connect credits buttons
+	developer_logo_button.pressed.connect(_on_developer_logo_pressed)
+	developer_logo_button.mouse_entered.connect(_on_logo_mouse_entered)
+	developer_logo_button.mouse_exited.connect(_on_logo_mouse_exited)
+	music_link_button.pressed.connect(_on_music_link_pressed)
 
 func load_settings() -> void:
 	var settings = SaveManager.get_audio_settings()
@@ -92,3 +107,29 @@ func _on_announce_drops_toggled(enabled: bool) -> void:
 func _on_back_pressed() -> void:
 	AudioManager.play_click_sound()
 	queue_free()  # Close settings menu
+
+func _on_developer_logo_pressed() -> void:
+	AudioManager.play_click_sound()
+	OS.shell_open("https://bonsaidotdot.com")
+
+func _on_logo_mouse_entered() -> void:
+	# Hover effect: scale up and brighten
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(developer_logo_button, "scale", Vector2(1.1, 1.1), 0.2)
+	tween.tween_property(developer_logo_button, "modulate", Color(1.2, 1.2, 1.2, 1.0), 0.2)
+
+func _on_logo_mouse_exited() -> void:
+	# Reset to normal
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(developer_logo_button, "scale", Vector2(1.0, 1.0), 0.2)
+	tween.tween_property(developer_logo_button, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
+
+func _on_music_link_pressed() -> void:
+	AudioManager.play_click_sound()
+	OS.shell_open("https://www.jacoblivesmusic.com")

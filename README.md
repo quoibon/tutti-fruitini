@@ -25,7 +25,7 @@ A physics-based fruit-merging puzzle game built with Godot 4.2+. Drop fruits, me
 ## ✨ Features
 
 ### Core Gameplay
-- **11 Fruit Tiers:** Cherry → Strawberry → Grape → Orange → Lemon → Apple → Pear → Peach → Pineapple → Melon → Watermelon
+- **11 Fruit Tiers:** Blueberry → Apple → Lemon → Coconut → Banana → Dragon Fruit → Orange → Grapes → Pineapple → Watermelon → Strawberry
 - **Physics-Based Merging:** Realistic 2D physics with gravity, collisions, and soft bouncing
 - **Combo System:** Score multipliers (1.0x - 3.0x) for chain merges
 - **Shake Mechanic:** Limited-use physics impulse system (50 shakes max)

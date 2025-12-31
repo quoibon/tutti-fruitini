@@ -53,11 +53,23 @@ func start_game() -> void:
 
 func end_game() -> void:
 	is_game_over = true
+	# Force save before game over screen
+	if ScoreManager.score > ScoreManager.high_score:
+		ScoreManager.high_score = ScoreManager.score
+		ScoreManager.save_high_score()
+	SaveManager.save_data()
+	print("Game Over - Data saved. Final score: ", ScoreManager.score, " High score: ", ScoreManager.high_score)
 	emit_signal("game_over")
 
 func pause_game() -> void:
 	is_paused = true
 	get_tree().paused = true
+	# Save data when pausing (user might close app from pause menu)
+	if ScoreManager.score > ScoreManager.high_score:
+		ScoreManager.high_score = ScoreManager.score
+		ScoreManager.save_high_score()
+	SaveManager.save_data()
+	print("Game Paused - Data saved. Current score: ", ScoreManager.score, " High score: ", ScoreManager.high_score)
 	emit_signal("game_paused")
 
 func resume_game() -> void:

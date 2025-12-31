@@ -20,7 +20,7 @@ const PROD_IOS_APP_ID = ""  # TODO: Add iOS App ID when available
 const PROD_IOS_REWARDED_AD_ID = ""  # TODO: Add iOS Rewarded Ad ID when available
 
 # Test IDs (for development)
-const TEST_ANDROID_APP_ID = "ca-app-pub-3940256099942544~3347511713"
+const TEST_ANDROID_APP_ID = "ca-app-pub-2547513308278750~1856760076"
 const TEST_ANDROID_REWARDED_AD_ID = "ca-app-pub-3940256099942544/5224354917"
 const TEST_IOS_APP_ID = "ca-app-pub-3940256099942544~1458002511"
 const TEST_IOS_REWARDED_AD_ID = "ca-app-pub-3940256099942544/1712485313"

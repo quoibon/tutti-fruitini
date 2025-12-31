@@ -392,9 +392,9 @@ func _on_merge_cooldown_timeout() -> void:
 func get_size_scale_for_level(fruit_level: int) -> float:
 	# Returns a size multiplier for specific fruit levels
 	match fruit_level:
-		1: return 1.3  # Fruit 2 - 1.3x larger
-		2, 3: return 1.2  # Fruits 3-4 are 1.2x larger
-		4: return 1.134  # Fruit 5 - 90% of 1.26
+		1: return 1.43  # Fruit 2 (Apple) - 1.3 * 1.1 = 10% larger
+		2, 3: return 1.32  # Fruits 3-4 (Lemon, Coconut) - 1.2 * 1.1 = 10% larger
+		4: return 1.247  # Fruit 5 (Banana) - 1.134 * 1.1 = 10% larger
 		5: return 1.021  # Fruit 6 - 90% of 1.134
 		6: return 1.078  # Fruit 7 - 110% of 0.98
 		7: return 0.84  # Fruit 8 - 60% of 1.4

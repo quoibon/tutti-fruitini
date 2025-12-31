@@ -10,7 +10,7 @@
 Physics-based fruit-merging puzzle game. Drop fruits, merge identical ones, shake to jostle pile. Player-friendly monetization (rewarded ads only for shake refills).
 
 **Core Mechanics:**
-- 11 fruit tiers (0-10): Cherry → Watermelon
+- 11 fruit tiers (0-10): Blueberry → Apple → Lemon → Coconut → Banana → Dragon Fruit → Orange → Grapes → Pineapple → Watermelon → Strawberry
 - Spawn pool: Levels 0-4 only (weighted random)
 - Merge on collision (identical level + low velocity)
 - Shake system: 50 uses, refill via rewarded ad
@@ -41,20 +41,20 @@ velocity_retention = 0.9  # 90% momentum kept (was 0.5)
 ### Fruit Data
 | Level | Name | Radius | Score | Spawn % | Size Multiplier |
 |-------|------|--------|-------|---------|-----------------|
-| 0 | Cherry | 36px | 1 | 35% | 1.0x |
-| 1 | Strawberry | 42px | 3 | 30% | 1.3x ⬆️ |
-| 2 | Grape | 50px | 6 | 20% | 1.2x ⬆️ |
-| 3 | Orange | 67px | 10 | 10% | 1.2x ⬆️ |
-| 4 | Lemon | 84px | 15 | 5% | 1.134x ⬆️ |
-| 5 | Apple | 101px | 21 | 0% | 1.134x ⬆️ |
-| 6 | Pear | 122px | 28 | 0% | 0.98x |
-| 7 | Peach | 138px | 36 | 0% | 0.84x ⬇️ |
+| 0 | Blueberry | 36px | 1 | 35% | 1.0x |
+| 1 | Apple | 42px | 3 | 30% | 1.43x ⬆️ (increased 10%) |
+| 2 | Lemon | 50px | 6 | 20% | 1.32x ⬆️ (increased 10%) |
+| 3 | Coconut | 67px | 10 | 10% | 1.32x ⬆️ (increased 10%) |
+| 4 | Banana | 84px | 15 | 5% | 1.247x ⬆️ (increased 10%) |
+| 5 | Dragon Fruit | 101px | 21 | 0% | 1.021x |
+| 6 | Orange | 122px | 28 | 0% | 1.078x |
+| 7 | Grapes | 138px | 36 | 0% | 0.84x ⬇️ |
 | 8 | Pineapple | 155px | 45 | 0% | 0.857x ⬇️ |
-| 9 | Melon | 173px | 55 | 0% | 0.857x ⬇️ |
-| 10 | Watermelon | 208px | 500 | 0% | 0.911x ⬇️ |
+| 9 | Watermelon | 173px | 55 | 0% | 0.857x ⬇️ |
+| 10 | Strawberry | 208px | 500 | 0% | 0.911x ⬇️ |
 
 **Special Merge Behavior:**
-- When two Watermelons (level 10) merge, they disappear without spawning a new fruit
+- When two Strawberries (level 10, ultimate fruit) merge, they disappear without spawning a new fruit
 - Awards 5x bonus points instead of standard 2x
 - Plays special sound effect (67.mp3)
 
@@ -79,11 +79,13 @@ velocity_retention = 0.9  # 90% momentum kept (was 0.5)
 ## Architecture
 
 ### Autoload Singletons
-1. **GameManager** - Fruit data, game state
-2. **ScoreManager** - Score, combo (1.0-3.0x), high score
-3. **AudioManager** - Music + 15 pooled SFX channels
-4. **SaveManager** - JSON persistence (`user://save_data.json`)
+1. **SaveManager** - JSON persistence (`user://save_data.json`) - MUST BE FIRST
+2. **GameManager** - Fruit data, game state
+3. **ScoreManager** - Score, combo (1.0-3.0x), high score
+4. **AudioManager** - Music + 15 pooled SFX channels
 5. **AdManager** - AdMob integration + 30s fallback timer
+
+**Critical:** SaveManager must load before ScoreManager to ensure high scores persist correctly.
 
 ### Object Pools
 - **FruitPool:** 30 initial, 100 max, 75 active limit (auto-culls oldest)
@@ -93,15 +95,23 @@ velocity_retention = 0.9  # 90% momentum kept (was 0.5)
 ```
 Main.tscn
 ├── Camera2D (shake effect)
-├── Container (walls/floor)
+├── Container (walls/floor - 650x1100 play area)
 ├── GameplayArea
 │   ├── SpawnPoint, FruitContainer, GameOverDetector
 │   └── NextFruitPreview (mouse-following)
 ├── Managers (Spawner, ShakeManager)
-├── UI (Score, Combo, Shake Counter, Refill Button)
+├── UI (Score, High Score, Shake Button, Refill Button, Pause Button)
 ├── FruitPool
 └── ParticlePool
 ```
+
+**Container Dimensions:**
+- Width: 650px (increased from 540px for better play space)
+- Height: 1100px (increased from 960px)
+- Optimized for mobile portrait orientation (1080x1920)
+- Rounded corners (20px radius) on background panel
+- Circular collision shapes (20px radius) at bottom corners for smooth physics
+- Prevents fruits from getting stuck in sharp corners
 
 ---
 
@@ -109,12 +119,13 @@ Main.tscn
 
 ### Shake Mechanic
 - **Count:** 50 max (persists via SaveManager)
-- **Cooldown:** 0.3s between uses (allows rapid stacking)
+- **Cooldown:** 0.1s between uses (very responsive for rapid tapping)
 - **Impulse:** Random vector (450 strength, 2x original)
   - Horizontal: ±450 px/s
   - Vertical: -455.6 px/s (6.75x original, 101.25% of horizontal)
 - **Feedback:** Camera shake (30px, 2x original), haptic (100ms), particles, sound
 - **Refill:** Rewarded ad OR free after 30s timer
+- **UI:** Large button (260x200) with clear "SHAKE" text and count display
 
 ### Scoring System
 ```gdscript
@@ -126,8 +137,14 @@ combo_timeout = 3.0      # resets to 1.0x
 
 ### Game Over Detection
 - **Area2D at top** with 2-second grace period
-- **Velocity check:** Ignore fast-moving fruits (>200 px/s)
+- **Velocity check:** Ignore fast-moving fruits (>200 px/s) - allows fruits to bounce above red line
+- **Out of bounds check:** Game ends if fruits LAND (velocity < 300) outside container
+  - Side margins: 80px outside left/right walls
+  - Bottom margin: 100px below floor
+  - No top check - fruits can fly high and fall back in
+  - Fast-moving fruits (>300 px/s) are ignored as they're still in flight
 - **Visual warning:** Red overlay + pulsing
+- Balanced between allowing dynamic shaking and preventing escapees
 
 ### Save Data Structure
 ```json
@@ -150,6 +167,16 @@ combo_timeout = 3.0      # resets to 1.0x
 }
 ```
 
+**Android Save System (Multi-layer Redundancy):**
+- **Immediate save:** High score saved instantly every time it increases
+- **Game events:** Save on game over, pause, and scene exit
+- **App lifecycle:** Save on NOTIFICATION_APPLICATION_PAUSED (app backgrounded)
+- **Verification:** Android-specific save verification with 100ms delay
+- **File I/O:** Explicit file.flush() to force disk write
+- **Failsafe:** tree_exiting signal saves data when Main scene unloads
+- **Multiple triggers:** ScoreManager, GameManager, SaveManager all save independently
+- Ensures 100% persistence across app restarts, force closes, and reboots
+
 ---
 
 ## File Structure
@@ -158,15 +185,21 @@ combo_timeout = 3.0      # resets to 1.0x
 /tutti-fruitini
 ├── /scenes
 │   ├── Main.tscn, Fruit.tscn, MainMenu.tscn, GameOver.tscn
+│   ├── Settings.tscn, Pause.tscn, Tutorial.tscn
 ├── /scripts
 │   ├── /autoload (GameManager, ScoreManager, AudioManager, SaveManager, AdManager)
 │   ├── Main.gd, Fruit.gd, Spawner.gd, ShakeManager.gd, GameOverDetector.gd
+│   ├── Settings.gd, Pause.gd, Tutorial.gd, MainMenu.gd, GameOver.gd
 │   ├── FruitPool.gd, ParticlePool.gd, Utils.gd
 ├── /data
 │   └── fruit_data.json (11 fruit definitions)
-├── /assets/sounds
-│   ├── /sfx (merge_01-05.wav, drop, shake, game_over, click, refill)
-│   └── /music (bgm_main.ogg)
+├── /assets
+│   ├── /sounds
+│   │   ├── /sfx (fruit-specific sounds, drop, shake, game_over, click, refill)
+│   │   └── /music (menu and game music tracks)
+│   └── /sprites
+│       ├── /fruits (11 fruit sprite assets)
+│       └── /ui (bonsai_logo.png)
 ├── project.godot
 └── default_bus_layout.tres (Music: -6dB, SFX: 0dB)
 ```
@@ -247,13 +280,33 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
 - Text: `#1A535C`, Danger: `#FF006E`
 
 **Touch Targets:** Min 44x44 dp
-**Shake Button:** 80x80 dp circular
+**Shake Button:** 260x200px with large text and outline
 **Aspect Ratios:** 16:9 to 20:9 (portrait)
+
+**Main Game UI:**
+- High Score: Top left, 32px font, gray color
+- Score: Below high score, 64px font (large), black color - primary focus
+- Shake Button: Bottom right (740, 1720), 260x180, white text with black outline
+- Pause Button: Top right, "| |" text (120x120), no emoji for Android compatibility
+- Combo Display: Removed for cleaner UI
+- Container: 650x1100 with rounded corners (20px radius) and smooth bottom corners
+
+**Settings Screen:**
+- Scrollable container for all settings options
+- Large fonts: Title 64px, labels 32px, toggles 28px
+- Volume sliders with consistent 350px label width
+- Toggle buttons aligned vertically
+- Credits section with:
+  - Developer: Bonsai... (24px)
+  - Clickable logo (360x360) with hover effect (scales to 110%, brightens)
+  - Motto: "Pause. Reflect. Continue..." (28px, gray)
+  - Music: Jacob Lives Music (clickable button, 24px)
 
 **Animations:**
 - Fruit drop: Scale 0.7→1.0 (0.3s back ease)
 - Merge: Spawn new at 1.15→1.0 (0.15s back ease, fast and smooth)
 - Camera shake: 30px amplitude, 0.3s duration (2x stronger)
+- Logo hover: Scale 1.0→1.1, brighten, 0.2s cubic ease
 
 ---
 
@@ -279,12 +332,41 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
 
 ### Recent Improvements (December 2024)
 1. **Physics Tuning:** 1.3x bounce, smoother merges with 90% velocity retention
-2. **Shake Enhancement:** 2x stronger with rapid stacking (0.3s cooldown)
+2. **Shake Enhancement:** 2x stronger with rapid stacking (0.1s cooldown for max responsiveness)
 3. **Fruit Sizing:** Dynamic scaling (1.4x for 7-8, 1.19x for 9-11)
 4. **Collision Detection:** Auto-generated from sprite alpha with tight fitting
 5. **Audio Balance:** 40% music volume, fruit-specific sounds only for #1 drops
 6. **UX Improvements:** ESC key pause, no auto-tutorial, menu music everywhere
 7. **Merge Speed:** Instant continuation with 0.15s animation (was 0.4s)
+8. **UI Overhaul (December 31, 2024):**
+   - Enlarged play area to 650x1100 for better gameplay space
+   - Removed combo display for cleaner interface
+   - Score now 64px (primary focus), High Score 32px, swapped positions
+   - All Settings/Pause fonts increased for better readability
+   - Settings screen now scrollable with Credits section
+   - Credits: Bonsai logo (360x360) with hover effect, links to bonsaidotdot.com
+   - Music credit: Jacob Lives Music link to jacoblivesmusic.com
+   - Removed all emojis from UI (Android compatibility)
+   - Pause button uses "| |" text instead of emoji
+   - Tutorial uses plain text numbers instead of emoji numbers
+   - App icon created using fruit 1 (BlueberrinniOctopussini)
+   - Container corners rounded (20px radius) for polished look
+   - Shake button repositioned lower to avoid Android overlap
+
+9. **Critical Bug Fixes (December 31, 2024):**
+   - Fixed fruits escaping container during shaking (velocity-based check)
+   - Game over triggers when fruit LANDS outside bounds (velocity < 300 px/s)
+   - Fruits can fly above red line and fall back in without game over
+   - Tighter margins (80px sides, 100px bottom) for better control
+   - Added smooth circular collision shapes at bottom corners (prevents stuck fruits)
+   - **Fixed high score persistence with multi-layer save system:**
+     - Immediate save every time high score increases
+     - Save on game over, pause, scene exit
+     - Save on app pause/close (NOTIFICATION_APPLICATION_PAUSED)
+     - Save verification on Android with filesystem delay handling
+     - Failsafe save when Main scene exits
+     - Multiple redundant save triggers ensure 100% persistence
+   - Repositioned shake button to avoid overlap on all Android devices
 
 ### Performance Optimization
 - Fruit pooling: Auto-returns on merge/removal
@@ -294,19 +376,30 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
 
 ---
 
-## Release Checklist (Milestone 7 - TODO)
+## Release Checklist (Milestone 7 - IN PROGRESS)
 
-**Pre-Release:**
-- [ ] Create privacy policy page (host at bonsaidotdot.com)
-- [ ] Setup Google Play Console account
-- [ ] Replace test AdMob IDs with production IDs
-- [ ] Update AndroidManifest.xml with real App ID
-- [ ] Create app icon and screenshots
-- [ ] Write store listing description
+**Completed:**
+- [x] Bonsai logo added to assets/sprites/ui/bonsai_logo.png
+- [x] AdMob account created and configured
+- [x] Android App ID set in AndroidManifest.xml
+- [x] Production Rewarded Ad ID configured in AdManager.gd
+- [x] Analytics plan (AdMob + Google Play Console)
+- [x] Privacy policy created and hosted at bonsaidotdot.com/legal/privacy.html
+- [x] Google Play Console account created
+- [x] Draft app listing created in Google Play Console
+
+**Pre-Release (Remaining):**
+- [x] App icon created (icon.png using fruit 1)
+- [x] Store listing descriptions completed (short + full)
+- [ ] Create feature graphic (1024x500 PNG) for Play Store banner
+- [ ] Take screenshots (minimum 2, portrait orientation: 1080x1920)
+- [ ] Generate keystore for signing (if not already created)
+- [ ] Configure export settings in Godot with keystore
 - [ ] Generate signed release build (.aab)
-- [ ] Test ad flow on release build
-- [ ] Verify save/load persistence
-- [ ] Test on multiple devices (low/mid/high-end)
+- [ ] Test ad flow on physical Android device with release build
+- [ ] Verify save/load persistence on device
+- [ ] Upload to Google Play Console (internal testing track recommended first)
+- [ ] Submit for review and publish
 
 **Store Listing:**
 - App Name: Italian Brainrot Tutti Fruttini Combinasion
@@ -346,7 +439,19 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
 
 ---
 
-**Last Updated:** December 28, 2024
+**Last Updated:** December 31, 2024
 **Contact:** bonsai@bonsaidotdot.com
 
 *This is a living document. Update as development progresses.*
+
+---
+
+## Assets Needed
+
+**Completed:**
+- ✅ `icon.png` - App icon created using fruit 1 (BlueberrinniOctopussini)
+- ✅ `assets/sprites/ui/bonsai_logo.png` - Developer logo (360x360)
+
+**For Store Listing Only:**
+- Feature graphic (1024x500 PNG) - Play Store banner
+- Screenshots (2-8 images, 1080x1920) - Gameplay screenshots

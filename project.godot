@@ -14,14 +14,14 @@ config/name="TuttiFruttini"
 config/description="Physics-based fruit merging puzzle game"
 run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.5", "Mobile")
-config/icon="res://icon.svg"
+config/icon="res://icon.png"
 
 [autoload]
 
-SaveManager="*res://scripts/autoload/SaveManager.gd"
 GameManager="*res://scripts/autoload/GameManager.gd"
 ScoreManager="*res://scripts/autoload/ScoreManager.gd"
 AudioManager="*res://scripts/autoload/AudioManager.gd"
+SaveManager="*res://scripts/autoload/SaveManager.gd"
 AdManager="*res://scripts/autoload/AdManager.gd"
 
 [display]
@@ -33,6 +33,10 @@ window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/admob/plugin.cfg")
 
 [physics]
 

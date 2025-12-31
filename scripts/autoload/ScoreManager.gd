@@ -26,6 +26,14 @@ func _ready() -> void:
 	# Load high score
 	load_high_score()
 
+func _notification(what: int) -> void:
+	# Save high score when app is paused or closed (critical for Android)
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if score > high_score:
+			high_score = score
+			save_high_score()
+		print("App pausing/closing - high score saved: ", high_score)
+
 func reset_score() -> void:
 	score = 0
 	combo_multiplier = 1.0
@@ -40,11 +48,15 @@ func add_score(base_points: int) -> void:
 	# Increase combo
 	increase_combo()
 
-	# Check for new high score
+	# Check for new high score - save immediately every time
 	if score > high_score:
 		high_score = score
-		save_high_score()
 		emit_signal("high_score_changed", high_score)
+		# Save immediately and forcefully
+		save_high_score()
+		# Double-check save happened
+		await get_tree().create_timer(0.05).timeout
+		SaveManager.save_data()
 
 	emit_signal("score_changed", score)
 	print("Score: +", final_points, " (", base_points, " x ", combo_multiplier, ") = ", score)

@@ -34,6 +34,9 @@ func _ready() -> void:
 	add_child(fruit_pool)
 	$GameplayArea.add_child(particle_pool)
 
+	# Connect tree exiting to save data (failsafe)
+	tree_exiting.connect(_on_tree_exiting)
+
 	# Setup spawner references
 	spawner.spawn_point = spawn_point
 	spawner.fruit_container = fruit_container
@@ -86,6 +89,7 @@ func _process(_delta: float) -> void:
 	# Update preview position to follow mouse
 	if not GameManager.is_game_over:
 		update_preview_position()
+		check_fruits_out_of_bounds()
 
 func update_preview_position() -> void:
 	var mouse_pos = get_global_mouse_position()
@@ -97,6 +101,34 @@ func update_preview_position() -> void:
 
 	# Update preview X position, keep Y fixed above spawn point
 	next_fruit_preview.global_position.x = clamped_x
+
+func check_fruits_out_of_bounds() -> void:
+	# Check all fruits to see if any have landed outside the container
+	var container_center_x = 540  # Center of screen
+	var container_center_y = 960  # Center of screen
+	var container_left = container_center_x - GameManager.CONTAINER_WIDTH / 2
+	var container_right = container_center_x + GameManager.CONTAINER_WIDTH / 2
+	var container_bottom = container_center_y + GameManager.CONTAINER_HEIGHT / 2
+
+	# Tight margins - if fruit goes significantly outside, game over
+	var side_margin = 80  # Pixels outside left/right walls
+	var bottom_margin = 100  # Pixels below floor
+
+	for fruit_node in fruit_container.get_children():
+		if fruit_node is Fruit:
+			var pos = fruit_node.global_position
+			var velocity = fruit_node.linear_velocity.length()
+
+			# Ignore fruits that are moving very fast (still in flight)
+			# But trigger game over for slower fruits that have landed outside
+			if velocity < 300:  # If moving slower than 300 px/s, it's landed/landing
+				# Check if outside left/right walls or below floor
+				if pos.x < container_left - side_margin or \
+				   pos.x > container_right + side_margin or \
+				   pos.y > container_bottom + bottom_margin:
+					print("GAME OVER! Fruit landed out of bounds at position: ", pos, " velocity: ", velocity)
+					game_over_detector.trigger_game_over()
+					return
 
 func _on_score_changed(new_score: int) -> void:
 	update_score_ui()
@@ -254,15 +286,16 @@ func _on_pause_button_pressed() -> void:
 	show_pause_menu()
 
 func show_pause_menu() -> void:
+	GameManager.pause_game()  # This will save data
 	var pause_menu = pause_scene.instantiate()
 	add_child(pause_menu)
 
 func get_preview_size_scale(fruit_level: int) -> float:
 	# Match the size scaling in Fruit.gd
 	match fruit_level:
-		1: return 1.3  # Fruit 2 - 1.3x larger
-		2, 3: return 1.2  # Fruits 3-4 are 1.2x larger
-		4: return 1.134  # Fruit 5 - 90% of 1.26
+		1: return 1.43  # Fruit 2 (Apple) - 1.3 * 1.1 = 10% larger
+		2, 3: return 1.32  # Fruits 3-4 (Lemon, Coconut) - 1.2 * 1.1 = 10% larger
+		4: return 1.247  # Fruit 5 (Banana) - 1.134 * 1.1 = 10% larger
 		5: return 1.021  # Fruit 6 - 90% of 1.134
 		6: return 1.078  # Fruit 7 - 110% of 0.98
 		7: return 0.84  # Fruit 8 - 60% of 1.4
@@ -270,3 +303,11 @@ func get_preview_size_scale(fruit_level: int) -> float:
 		9: return 0.857  # Fruit 10 - reduced by 20% from 1.071
 		10: return 0.911  # Fruit 11 - 90% of 1.012
 		_: return 1.0
+
+func _on_tree_exiting() -> void:
+	# Failsafe: Save data when Main scene is exiting
+	if ScoreManager.score > ScoreManager.high_score:
+		ScoreManager.high_score = ScoreManager.score
+		ScoreManager.save_high_score()
+	SaveManager.save_data()
+	print("Main scene exiting - Data saved as failsafe")

@@ -8,6 +8,12 @@ var current_data: Dictionary
 func _ready() -> void:
 	load_data()
 
+func _notification(what: int) -> void:
+	# Save data when app is paused or closed (critical for Android)
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		print("App pausing/closing - saving data...")
+		save_data()
+
 func load_data() -> void:
 	print("Loading save data from: ", SAVE_PATH)
 
@@ -43,10 +49,39 @@ func save_data() -> void:
 		file.store_string(json_string)
 		file.flush()  # Explicitly flush to disk
 		file.close()
+
+		# Verify the save by reading it back immediately (critical for Android)
+		if OS.get_name() == "Android":
+			await get_tree().create_timer(0.1).timeout  # Small delay for filesystem
+			verify_save()
+
 		print("Save data written successfully to: ", SAVE_PATH)
 		print("High score in save: ", current_data.get("high_score", 0))
 	else:
 		push_error("Failed to open save file for writing: " + str(FileAccess.get_open_error()))
+
+func verify_save() -> void:
+	# Verify that the save actually wrote to disk (Android sometimes needs this)
+	if FileAccess.file_exists(SAVE_PATH):
+		var verify_file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+		if verify_file:
+			var content = verify_file.get_as_text()
+			verify_file.close()
+
+			var json = JSON.new()
+			if json.parse(content) == OK:
+				var saved_high_score = json.data.get("high_score", -1)
+				var current_high_score = current_data.get("high_score", -1)
+				if saved_high_score != current_high_score:
+					push_error("Save verification failed! Saved: " + str(saved_high_score) + " Expected: " + str(current_high_score))
+				else:
+					print("Save verified successfully. High score: ", saved_high_score)
+			else:
+				push_error("Save verification parse failed!")
+		else:
+			push_error("Save verification - could not read file!")
+	else:
+		push_error("Save verification - file does not exist!")
 
 func get_default_data() -> Dictionary:
 	return {
