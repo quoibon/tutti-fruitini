@@ -23,9 +23,6 @@ const TEST_IOS_REWARDED_AD_ID = "ca-app-pub-3940256099942544/1712485313"
 
 # Poing Studios AdMob plugin objects
 var rewarded_ad: RewardedAd = null
-var rewarded_ad_loader: RewardedAdLoader = null
-var rewarded_ad_load_callback := RewardedAdLoadCallback.new()
-var full_screen_content_callback := FullScreenContentCallback.new()
 var on_user_earned_reward_listener := OnUserEarnedRewardListener.new()
 
 var is_ad_loaded: bool = false
@@ -48,8 +45,8 @@ func _ready() -> void:
 	# Check if AdMob plugin is available
 	check_plugin_availability()
 
-	# Setup callbacks
-	setup_callbacks()
+	# Setup reward listener
+	on_user_earned_reward_listener.on_user_earned_reward = _on_user_earned_reward
 
 	# Setup retry timer
 	retry_timer = Timer.new()
@@ -87,38 +84,6 @@ func check_plugin_availability() -> void:
 	else:
 		print("❌ AdMob plugin not detected - using fallback mode")
 
-func setup_callbacks() -> void:
-	# Ad load callbacks
-	rewarded_ad_load_callback.on_ad_loaded = _on_rewarded_ad_loaded
-	rewarded_ad_load_callback.on_ad_failed_to_load = _on_rewarded_ad_failed_to_load
-
-	# Full screen content callbacks
-	full_screen_content_callback.on_ad_clicked = func() -> void:
-		print("📱 Ad clicked")
-
-	full_screen_content_callback.on_ad_dismissed_full_screen_content = func() -> void:
-		print("🚪 Ad dismissed")
-		emit_signal("ad_closed")
-		# Destroy and reload next ad
-		destroy_ad()
-		load_rewarded_ad()
-
-	full_screen_content_callback.on_ad_failed_to_show_full_screen_content = func(ad_error: AdError) -> void:
-		print("❌ Ad failed to show: ", ad_error.message)
-		emit_signal("ad_failed_to_load")
-		destroy_ad()
-		show_free_refill_option()
-
-	full_screen_content_callback.on_ad_impression = func() -> void:
-		print("👁️ Ad impression recorded")
-
-	full_screen_content_callback.on_ad_showed_full_screen_content = func() -> void:
-		print("📺 Ad displayed full screen")
-		emit_signal("ad_displayed")
-
-	# Reward callback
-	on_user_earned_reward_listener.on_user_earned_reward = _on_user_earned_reward
-
 func initialize_admob() -> void:
 	if not is_plugin_available:
 		return
@@ -127,17 +92,8 @@ func initialize_admob() -> void:
 	var mode = "TEST" if USE_TEST_ADS else "PRODUCTION"
 	print("AdMob Mode: ", mode)
 
-	# Initialize MobileAds SDK (required for Poing Studios plugin)
-	var on_initialization_complete_listener := OnInitializationCompleteListener.new()
-	on_initialization_complete_listener.on_initialization_complete = _on_initialization_complete
-
-	# Configure for test ads
-	if USE_TEST_ADS:
-		var request_configuration := RequestConfiguration.new()
-		request_configuration.test_device_ids = []  # Empty array means all devices are test devices
-		MobileAds.set_request_configuration(request_configuration)
-
-	MobileAds.initialize(on_initialization_complete_listener)
+	# Initialize MobileAds SDK (required - should be done once at app launch)
+	MobileAds.initialize()
 
 func load_rewarded_ad() -> void:
 	if not is_plugin_available:
@@ -154,6 +110,11 @@ func load_rewarded_ad() -> void:
 
 	is_loading = true
 
+	# Free memory from previous ad
+	if rewarded_ad:
+		rewarded_ad.destroy()
+		rewarded_ad = null
+
 	# Get appropriate ad unit ID based on platform and test mode
 	var ad_unit_id: String
 	if OS.get_name() == "Android":
@@ -161,12 +122,32 @@ func load_rewarded_ad() -> void:
 	else:
 		ad_unit_id = TEST_IOS_REWARDED_AD_ID if USE_TEST_ADS else PROD_IOS_REWARDED_AD_ID
 
-	# Load rewarded ad using new API
+	# Load rewarded ad using Poing Studios API
 	print("📥 Loading rewarded ad (", "TEST" if USE_TEST_ADS else "PRODUCTION", ")...")
 	print("Ad Unit ID: ", ad_unit_id)
 
-	rewarded_ad_loader = RewardedAdLoader.new()
-	rewarded_ad_loader.load(ad_unit_id, AdRequest.new(), rewarded_ad_load_callback)
+	var rewarded_ad_load_callback := RewardedAdLoadCallback.new()
+
+	rewarded_ad_load_callback.on_ad_failed_to_load = func(ad_error: LoadAdError) -> void:
+		is_ad_loaded = false
+		is_loading = false
+		print("❌ Rewarded ad failed to load: ", ad_error.message)
+		print("Error code: ", ad_error.code)
+		emit_signal("ad_failed_to_load")
+		# Retry after delay
+		print("🔄 Retrying ad load in ", AD_RETRY_DELAY, " seconds...")
+		retry_timer.start()
+		# Offer free refill as backup
+		show_free_refill_option()
+
+	rewarded_ad_load_callback.on_ad_loaded = func(loaded_ad: RewardedAd) -> void:
+		is_ad_loaded = true
+		is_loading = false
+		rewarded_ad = loaded_ad
+		print("✅ Rewarded ad loaded successfully (UID: ", rewarded_ad._uid, ")")
+		emit_signal("ad_loaded")
+
+	RewardedAdLoader.new().load(ad_unit_id, AdRequest.new(), rewarded_ad_load_callback)
 
 func show_rewarded_ad() -> void:
 	print("========================================")
@@ -188,14 +169,31 @@ func show_rewarded_ad() -> void:
 		return
 
 	print("📺 Showing rewarded ad...")
-	rewarded_ad.show(on_user_earned_reward_listener)
 
-func destroy_ad() -> void:
-	if rewarded_ad:
-		rewarded_ad.destroy()
-		rewarded_ad = null
-		is_ad_loaded = false
-		print("🗑️ Ad destroyed")
+	# Setup full screen content callbacks
+	var full_screen_content_callback := FullScreenContentCallback.new()
+
+	full_screen_content_callback.on_ad_dismissed_full_screen_content = func() -> void:
+		print("🚪 Ad dismissed")
+		emit_signal("ad_closed")
+		# Destroy and reload next ad
+		if rewarded_ad:
+			rewarded_ad.destroy()
+			rewarded_ad = null
+			is_ad_loaded = false
+		load_rewarded_ad()
+
+	full_screen_content_callback.on_ad_failed_to_show_full_screen_content = func(ad_error: AdError) -> void:
+		print("❌ Ad failed to show: ", ad_error.message)
+		emit_signal("ad_failed_to_load")
+		if rewarded_ad:
+			rewarded_ad.destroy()
+			rewarded_ad = null
+			is_ad_loaded = false
+		show_free_refill_option()
+
+	rewarded_ad.full_screen_content_callback = full_screen_content_callback
+	rewarded_ad.show(on_user_earned_reward_listener)
 
 func show_free_refill_option() -> void:
 	print("⏱️ Free refill available in ", FREE_REFILL_DELAY, " seconds")
@@ -206,30 +204,7 @@ func grant_free_refill() -> void:
 	print("✅ Granting free shake refill")
 	emit_signal("reward_earned")
 
-# AdMob Callbacks (Poing Studios API)
-
-func _on_rewarded_ad_loaded(loaded_ad: RewardedAd) -> void:
-	is_ad_loaded = true
-	is_loading = false
-	rewarded_ad = loaded_ad
-	rewarded_ad.full_screen_content_callback = full_screen_content_callback
-
-	print("✅ Rewarded ad loaded successfully (UID: ", rewarded_ad._uid, ")")
-	emit_signal("ad_loaded")
-
-func _on_rewarded_ad_failed_to_load(ad_error: LoadAdError) -> void:
-	is_ad_loaded = false
-	is_loading = false
-	print("❌ Rewarded ad failed to load: ", ad_error.message)
-	print("Error code: ", ad_error.code)
-	emit_signal("ad_failed_to_load")
-
-	# Retry after delay
-	print("🔄 Retrying ad load in ", AD_RETRY_DELAY, " seconds...")
-	retry_timer.start()
-
-	# Offer free refill as backup
-	show_free_refill_option()
+# AdMob Callbacks
 
 func _on_user_earned_reward(rewarded_item: RewardedItem) -> void:
 	print("🎁 User earned reward: ", rewarded_item.amount, " ", rewarded_item.type)
@@ -238,14 +213,6 @@ func _on_user_earned_reward(rewarded_item: RewardedItem) -> void:
 	# Cancel free refill timer if active
 	if free_refill_timer.time_left > 0:
 		free_refill_timer.stop()
-
-func _on_initialization_complete(initialization_status: InitializationStatus) -> void:
-	print("✅ MobileAds SDK initialization complete!")
-	for adapter_name in initialization_status.adapter_status_map:
-		var adapter_status: AdapterStatus = initialization_status.adapter_status_map[adapter_name]
-		print("  Adapter: ", adapter_name)
-		print("    State: ", adapter_status.initialization_state)
-		print("    Description: ", adapter_status.description)
 
 # Timer Callbacks
 
