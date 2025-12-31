@@ -228,9 +228,9 @@ func update_shake_counter_ui() -> void:
 		else:
 			var time_left = int(AdManager.get_free_refill_time_remaining())
 			if time_left > 0:
-				refill_button.text = "Watch Ad\n(Free in " + str(time_left) + "s)"
+				refill_button.text = "Watch Ad\nRefill Shakes\n(Free in " + str(time_left) + "s)"
 			else:
-				refill_button.text = "Watch Ad\nto Refill"
+				refill_button.text = "Watch Ad\nRefill Shakes"
 
 # AdManager Callbacks
 
