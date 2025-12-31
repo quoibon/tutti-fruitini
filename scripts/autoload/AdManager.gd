@@ -127,6 +127,18 @@ func initialize_admob() -> void:
 	var mode = "TEST" if USE_TEST_ADS else "PRODUCTION"
 	print("AdMob Mode: ", mode)
 
+	# Initialize MobileAds SDK (required for Poing Studios plugin)
+	var on_initialization_complete_listener := OnInitializationCompleteListener.new()
+	on_initialization_complete_listener.on_initialization_complete = _on_initialization_complete
+
+	# Configure for test ads
+	if USE_TEST_ADS:
+		var request_configuration := RequestConfiguration.new()
+		request_configuration.test_device_ids = []  # Empty array means all devices are test devices
+		MobileAds.set_request_configuration(request_configuration)
+
+	MobileAds.initialize(on_initialization_complete_listener)
+
 func load_rewarded_ad() -> void:
 	if not is_plugin_available:
 		print("Cannot load ad - AdMob plugin not available")
@@ -226,6 +238,14 @@ func _on_user_earned_reward(rewarded_item: RewardedItem) -> void:
 	# Cancel free refill timer if active
 	if free_refill_timer.time_left > 0:
 		free_refill_timer.stop()
+
+func _on_initialization_complete(initialization_status: InitializationStatus) -> void:
+	print("✅ MobileAds SDK initialization complete!")
+	for adapter_name in initialization_status.adapter_status_map:
+		var adapter_status: AdapterStatus = initialization_status.adapter_status_map[adapter_name]
+		print("  Adapter: ", adapter_name)
+		print("    State: ", adapter_status.initialization_state)
+		print("    Description: ", adapter_status.description)
 
 # Timer Callbacks
 
