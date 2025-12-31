@@ -60,11 +60,11 @@ func _ready() -> void:
 		load_rewarded_ad()
 
 func check_plugin_availability() -> void:
-	# Check if AdMob singleton exists
-	if Engine.has_singleton("AdMob"):
-		admob = Engine.get_singleton("AdMob")
+	# Check if AdMob singleton exists (Godot 4.x uses "PoingGodotAdMob")
+	if Engine.has_singleton("PoingGodotAdMob"):
+		admob = Engine.get_singleton("PoingGodotAdMob")
 		is_plugin_available = true
-		print("AdMob plugin detected")
+		print("AdMob plugin detected (PoingGodotAdMob)")
 	else:
 		is_plugin_available = false
 		print("AdMob plugin not detected - using fallback mode")
