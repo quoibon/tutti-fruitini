@@ -70,13 +70,13 @@ func _ready() -> void:
 		print("AdMob plugin not available - using fallback mode only")
 
 func check_plugin_availability() -> void:
-	# Check if plugin classes exist (Poing Studios Godot 4.x plugin)
-	# The plugin defines these classes when it's loaded
+	# Check if the native plugin singleton is available
+	# The Poing Studios plugin registers a singleton called "PoingGodotAdMobRewardedAd"
 	print("========================================")
 	print("Platform: ", OS.get_name())
-	print("Checking for RewardedAdLoader class...")
-	is_plugin_available = ClassDB.class_exists("RewardedAdLoader")
-	print("ClassDB.class_exists('RewardedAdLoader') = ", is_plugin_available)
+	print("Checking for PoingGodotAdMobRewardedAd singleton...")
+	is_plugin_available = Engine.has_singleton("PoingGodotAdMobRewardedAd")
+	print("Engine.has_singleton('PoingGodotAdMobRewardedAd') = ", is_plugin_available)
 	print("========================================")
 
 	if is_plugin_available:
@@ -93,7 +93,12 @@ func initialize_admob() -> void:
 	print("AdMob Mode: ", mode)
 
 	# Initialize MobileAds SDK (required - should be done once at app launch)
-	MobileAds.initialize()
+	var on_initialization_complete_listener := OnInitializationCompleteListener.new()
+	on_initialization_complete_listener.on_initialization_complete = _on_admob_initialized
+	MobileAds.initialize(on_initialization_complete_listener)
+
+func _on_admob_initialized(initialization_status: InitializationStatus) -> void:
+	print("✅ AdMob SDK initialized successfully")
 
 func load_rewarded_ad() -> void:
 	if not is_plugin_available:
