@@ -9,7 +9,10 @@ func _ready() -> void:
 	load_data()
 
 func load_data() -> void:
+	print("Loading save data from: ", SAVE_PATH)
+
 	if not FileAccess.file_exists(SAVE_PATH):
+		print("Save file does not exist, creating default data")
 		current_data = get_default_data()
 		save_data()
 		return
@@ -17,24 +20,33 @@ func load_data() -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if file:
 		var json_string = file.get_as_text()
+		file.close()
+
 		var json = JSON.new()
 		var parse_result = json.parse(json_string)
 
 		if parse_result == OK:
 			current_data = json.data
+			print("Save data loaded successfully")
+			print("High score loaded: ", current_data.get("high_score", 0))
 		else:
-			print("Error parsing save file")
+			print("Error parsing save file: ", json.get_error_message())
 			current_data = get_default_data()
-
-		file.close()
 	else:
+		push_error("Failed to open save file for reading: " + str(FileAccess.get_open_error()))
 		current_data = get_default_data()
 
 func save_data() -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
-		file.store_string(JSON.stringify(current_data, "\t"))
+		var json_string = JSON.stringify(current_data, "\t")
+		file.store_string(json_string)
+		file.flush()  # Explicitly flush to disk
 		file.close()
+		print("Save data written successfully to: ", SAVE_PATH)
+		print("High score in save: ", current_data.get("high_score", 0))
+	else:
+		push_error("Failed to open save file for writing: " + str(FileAccess.get_open_error()))
 
 func get_default_data() -> Dictionary:
 	return {
