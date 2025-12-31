@@ -35,11 +35,16 @@ var is_loading: bool = false
 # Fallback timer system
 var retry_timer: Timer
 var free_refill_timer: Timer
+var free_refill_timer_started: bool = false  # Track if timer was ever started
 
 const AD_RETRY_DELAY: float = 5.0
 const FREE_REFILL_DELAY: float = 30.0
 
 func _ready() -> void:
+	print("========================================")
+	print("AdManager _ready() called")
+	print("========================================")
+
 	# Check if AdMob plugin is available
 	check_plugin_availability()
 
@@ -70,7 +75,9 @@ func _ready() -> void:
 func check_plugin_availability() -> void:
 	# Check if plugin classes exist (Poing Studios Godot 4.x plugin)
 	# The plugin defines these classes when it's loaded
+	print("Checking for RewardedAdLoader class...")
 	is_plugin_available = ClassDB.class_exists("RewardedAdLoader")
+	print("ClassDB.class_exists('RewardedAdLoader') = ", is_plugin_available)
 
 	if is_plugin_available:
 		print("✅ AdMob plugin detected (Poing Studios Godot 4.x)")
@@ -170,6 +177,7 @@ func destroy_ad() -> void:
 
 func show_free_refill_option() -> void:
 	print("⏱️ Free refill available in ", FREE_REFILL_DELAY, " seconds")
+	free_refill_timer_started = true
 	free_refill_timer.start()
 
 func grant_free_refill() -> void:
@@ -228,5 +236,15 @@ func get_free_refill_time_remaining() -> float:
 	return free_refill_timer.time_left
 
 func is_free_refill_ready() -> bool:
-	# Only ready if timer has finished AND stopped
-	return free_refill_timer.is_stopped() and free_refill_timer.time_left <= 0 and not is_plugin_available or (is_plugin_available and not is_ad_loaded)
+	# Free refill is ready only if:
+	# 1. Timer was started (ad failed or plugin unavailable)
+	# 2. AND timer has finished (time_left = 0 and is_stopped = true)
+	var ready = free_refill_timer_started and free_refill_timer.is_stopped() and free_refill_timer.time_left <= 0
+
+	print("is_free_refill_ready() = ", ready)
+	print("  timer_started=", free_refill_timer_started)
+	print("  timer_stopped=", free_refill_timer.is_stopped())
+	print("  time_left=", free_refill_timer.time_left)
+	print("  plugin_available=", is_plugin_available)
+
+	return ready
