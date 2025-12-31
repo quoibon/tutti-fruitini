@@ -151,30 +151,37 @@ visible = false
 position = Vector2(100, 210)
 
 [node name="ShakeButton" type="Button" parent="UI"]
-offset_left = 850.0
-offset_top = 1720.0
+offset_left = 790.0
+offset_top = 1630.0
 offset_right = 1050.0
-offset_bottom = 1870.0
+offset_bottom = 1830.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 32
-text = "🔔 50
-SHAKE"
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 40
+text = "SHAKE
+50"
 
 [node name="RefillButton" type="Button" parent="UI"]
 visible = false
-offset_left = 320.0
-offset_top = 1720.0
-offset_right = 760.0
-offset_bottom = 1870.0
+offset_left = 280.0
+offset_top = 1630.0
+offset_right = 720.0
+offset_bottom = 1830.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 28
-text = "Watch Ad to Refill Shakes"
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 32
+text = "Watch Ad
+to Refill"
 
 [node name="PauseButton" type="Button" parent="UI"]
 offset_left = 920.0
 offset_top = 40.0
 offset_right = 1040.0
-offset_bottom = 140.0
+offset_bottom = 160.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 56
-text = "⏸"
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 48
+text = "| |"

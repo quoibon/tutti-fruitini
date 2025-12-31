@@ -211,7 +211,7 @@ func _on_refill_button_pressed() -> void:
 
 func update_shake_counter_ui() -> void:
 	var count = shake_manager.get_shake_count()
-	shake_button.text = "🔔 " + str(count) + "\nSHAKE"
+	shake_button.text = "SHAKE\n" + str(count)
 
 	# Change button color based on shake count
 	if count <= 0:
@@ -224,13 +224,13 @@ func update_shake_counter_ui() -> void:
 	# Update refill button text
 	if refill_button.visible:
 		if AdManager.is_free_refill_ready():
-			refill_button.text = "🎁 FREE REFILL"
+			refill_button.text = "FREE REFILL!"
 		else:
 			var time_left = int(AdManager.get_free_refill_time_remaining())
 			if time_left > 0:
-				refill_button.text = "📺 Watch Ad\n(Free in " + str(time_left) + "s)"
+				refill_button.text = "Watch Ad\n(Free in " + str(time_left) + "s)"
 			else:
-				refill_button.text = "📺 Watch Ad to Refill"
+				refill_button.text = "Watch Ad\nto Refill"
 
 # AdManager Callbacks
 
@@ -242,7 +242,7 @@ func _on_ad_reward_earned() -> void:
 func _on_free_refill_ready() -> void:
 	print("Free refill is now available")
 	if refill_button.visible:
-		refill_button.text = "🎁 FREE REFILL"
+		refill_button.text = "FREE REFILL!"
 
 func _on_ad_failed() -> void:
 	print("Ad failed to load - free refill option available in 30s")

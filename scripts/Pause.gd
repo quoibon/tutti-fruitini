@@ -3,7 +3,6 @@ extends CanvasLayer
 ## Pause - Pause menu overlay
 
 @onready var resume_button = $Panel/VBoxContainer/ResumeButton
-@onready var restart_button = $Panel/VBoxContainer/RestartButton
 @onready var settings_button = $Panel/VBoxContainer/SettingsButton
 @onready var menu_button = $Panel/VBoxContainer/MenuButton
 
@@ -20,7 +19,6 @@ func _ready() -> void:
 
 	# Connect buttons
 	resume_button.pressed.connect(_on_resume_pressed)
-	restart_button.pressed.connect(_on_restart_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
 
@@ -37,11 +35,6 @@ func _input(event: InputEvent) -> void:
 func _on_resume_pressed() -> void:
 	AudioManager.play_click_sound()
 	resume_game()
-
-func _on_restart_pressed() -> void:
-	AudioManager.play_click_sound()
-	resume_game()
-	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
 func _on_settings_pressed() -> void:
 	AudioManager.play_click_sound()
