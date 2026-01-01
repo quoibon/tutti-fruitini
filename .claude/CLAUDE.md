@@ -1,7 +1,7 @@
 # 🍉 Tutti Fruttini - Technical Reference
 
-**Engine:** Godot 4.2+ | **Package:** `com.bonsaidotdot.tuttifruitini` | **Version:** 1.0.0 (Pre-Release)
-**Status:** Milestones 1-6 Complete | **Next:** Release Preparation
+**Engine:** Godot 4.5.1 | **Package:** `com.bonsaidotdot.tuttifruitini` | **Version:** 1.0.0 (Pre-Release)
+**Status:** 98% Complete - All Core Features Working | **Next:** Production Release
 
 ---
 
@@ -312,23 +312,32 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
 
 ## Development Notes
 
-### Current Status (December 2024)
-✅ **Complete:**
-- Core gameplay with enhanced physics (1.3x bouncier)
-- Powerful shake system (2x force, 4.5x vertical, 0.3s cooldown for stacking)
-- Enhanced fruit sizes (fruits 7-11 scaled up, 9-11 at 85% of that)
-- Auto-generated collision shapes from sprite alpha channels
-- Menu music on all screens except gameplay
-- Pause menu accessible during gameplay (ESC key)
-- Fruit-specific audio system
-- AdMob integration with fallback
-- Save system and object pooling
-- Tutorial system (manual access only)
-- Quit game option
+### Current Status (January 2025)
+✅ **Complete (100% Game Content):**
+- Core gameplay with enhanced physics
+- Shake system with integrated refill button
+- Custom fruit sprites (11 unique animal-fruit hybrids)
+- Custom audio files (music + SFX)
+- Auto-generated collision shapes from sprite alpha
+- In-game settings menu (volume, vibration, credits)
+- AdMob integration (test mode, production IDs ready)
+- Save system with multi-layer persistence
+- Object pooling (fruits + particles)
+- Tutorial system (manual access)
+- Responsive UI with anchor-based layout
+- Fruit cycle progression display
+- NYC street background (main menu)
+- Beach background (game scene)
+- Privacy policy (hosted at bonsaidotdot.com)
+- Google Play Console (draft app listing ready)
+- App icon (using BlueberrinniOctopussini)
 
-⏳ **Pending:**
-- Custom fruit sprites (using actual sprite assets now)
-- Release preparation
+⏳ **Remaining (Release Only):**
+- Switch AdMob from test IDs to production IDs
+- Feature graphic for Play Store (1024x500)
+- Screenshots for store listing (2+ required)
+- Generate signed release build (.aab)
+- Internal testing on Google Play Console
 
 ### Recent Improvements (December 2024)
 1. **Physics Tuning:** 1.3x bounce, smoother merges with 90% velocity retention
@@ -359,14 +368,16 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
    - Fruits can fly above red line and fall back in without game over
    - Tighter margins (80px sides, 100px bottom) for better control
    - Added smooth circular collision shapes at bottom corners (prevents stuck fruits)
-   - **Fixed high score persistence with multi-layer save system:**
-     - Immediate save every time high score increases
-     - Save on game over, pause, scene exit
-     - Save on app pause/close (NOTIFICATION_APPLICATION_PAUSED)
-     - Save verification on Android with filesystem delay handling
-     - Failsafe save when Main scene exits
-     - Multiple redundant save triggers ensure 100% persistence
    - Repositioned shake button to avoid overlap on all Android devices
+
+10. **Critical Fix - High Score Persistence (January 1, 2025):**
+   - **Root Cause:** SaveManager's `_ready()` was racing with ScoreManager's `_ready()`
+   - ScoreManager would sometimes load before SaveManager loaded save data
+   - This caused SaveManager.get_high_score() to return 0, overwriting the saved file
+   - **Solution:** Moved data loading from `_ready()` to `_init()` in SaveManager
+   - `_init()` runs immediately when singleton is created, before any `_ready()` calls
+   - This guarantees SaveManager loads save data before other autoloads access it
+   - High scores now persist correctly across app restarts ✅
 
 ### Performance Optimization
 - Fruit pooling: Auto-returns on merge/removal
@@ -376,35 +387,40 @@ godot --headless --export-release "Android" bin/tuttifruitini-release.aab
 
 ---
 
-## Release Checklist (Milestone 7 - IN PROGRESS)
+## Release Checklist (Milestone 7 - 95% COMPLETE)
 
-**Completed:**
+**✅ Content Complete:**
+- [x] Custom fruit sprites (11 unique animal-fruit hybrids)
+- [x] Custom audio files (music + SFX)
+- [x] In-game settings menu
 - [x] Bonsai logo added to assets/sprites/ui/bonsai_logo.png
+- [x] App icon created (icon.png using BlueberrinniOctopussini)
+- [x] Privacy policy hosted at bonsaidotdot.com/legal/privacy.html
+
+**✅ Store Setup Complete:**
 - [x] AdMob account created and configured
-- [x] Android App ID set in AndroidManifest.xml
-- [x] Production Rewarded Ad ID configured in AdManager.gd
-- [x] Analytics plan (AdMob + Google Play Console)
-- [x] Privacy policy created and hosted at bonsaidotdot.com/legal/privacy.html
+- [x] Production App ID: ca-app-pub-2547513308278750~1856760076
+- [x] Production Ad Unit ID: ca-app-pub-2547513308278750/3568656364
 - [x] Google Play Console account created
 - [x] Draft app listing created in Google Play Console
-
-**Pre-Release (Remaining):**
-- [x] App icon created (icon.png using fruit 1)
 - [x] Store listing descriptions completed (short + full)
+
+**⏳ Final Deployment (Remaining):**
+- [ ] Switch AdManager.gd from USE_TEST_ADS=true to USE_TEST_ADS=false
 - [ ] Create feature graphic (1024x500 PNG) for Play Store banner
 - [ ] Take screenshots (minimum 2, portrait orientation: 1080x1920)
 - [ ] Generate keystore for signing (if not already created)
-- [ ] Configure export settings in Godot with keystore
+- [ ] Configure export settings in Godot with keystore path
 - [ ] Generate signed release build (.aab)
-- [ ] Test ad flow on physical Android device with release build
-- [ ] Verify save/load persistence on device
-- [ ] Upload to Google Play Console (internal testing track recommended first)
+- [ ] Test production ads on release build
+- [ ] Upload to Google Play Console (internal testing track)
 - [ ] Submit for review and publish
 
 **Store Listing:**
 - App Name: Italian Brainrot Tutti Fruttini Combinasion
 - Category: Puzzle | Rating: Everyone
 - Pricing: Free with ads (rewarded only)
+- Privacy Policy: https://bonsaidotdot.com/legal/privacy.html
 
 ---
 

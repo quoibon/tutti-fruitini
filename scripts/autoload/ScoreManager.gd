@@ -52,11 +52,7 @@ func add_score(base_points: int) -> void:
 	if score > high_score:
 		high_score = score
 		emit_signal("high_score_changed", high_score)
-		# Save immediately and forcefully
 		save_high_score()
-		# Double-check save happened
-		await get_tree().create_timer(0.05).timeout
-		SaveManager.save_data()
 
 	emit_signal("score_changed", score)
 	print("Score: +", final_points, " (", base_points, " x ", combo_multiplier, ") = ", score)

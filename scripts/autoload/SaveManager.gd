@@ -3,16 +3,25 @@ extends Node
 ## SaveManager - Handles all game data persistence
 
 const SAVE_PATH = "user://save_data.json"
-var current_data: Dictionary
+var current_data: Dictionary = {}
+
+func _init() -> void:
+	# Initialize with default data first
+	current_data = get_default_data()
+	# Then load saved data if it exists - DO THIS IN _init() NOT _ready()!
+	# This ensures data is loaded before other autoloads try to access it
+	load_data()
 
 func _ready() -> void:
-	load_data()
+	# Data already loaded in _init()
+	print("SaveManager ready. High score: ", current_data.get("high_score", 0))
 
 func _notification(what: int) -> void:
 	# Save data when app is paused or closed (critical for Android)
 	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
-		print("App pausing/closing - saving data...")
+		print("App closing - saving data. High score: ", current_data.get("high_score", 0))
 		save_data()
+		print("Save complete")
 
 func load_data() -> void:
 	print("Loading save data from: ", SAVE_PATH)
@@ -33,8 +42,7 @@ func load_data() -> void:
 
 		if parse_result == OK:
 			current_data = json.data
-			print("Save data loaded successfully")
-			print("High score loaded: ", current_data.get("high_score", 0))
+			print("Save data loaded successfully. High score: ", current_data.get("high_score", 0))
 		else:
 			print("Error parsing save file: ", json.get_error_message())
 			current_data = get_default_data()
@@ -50,13 +58,10 @@ func save_data() -> void:
 		file.flush()  # Explicitly flush to disk
 		file.close()
 
-		# Verify the save by reading it back immediately (critical for Android)
-		if OS.get_name() == "Android":
-			await get_tree().create_timer(0.1).timeout  # Small delay for filesystem
-			verify_save()
+		print("Save data written successfully. High score: ", current_data.get("high_score", 0))
 
-		print("Save data written successfully to: ", SAVE_PATH)
-		print("High score in save: ", current_data.get("high_score", 0))
+		# Verify the save immediately (critical for Android)
+		verify_save()
 	else:
 		push_error("Failed to open save file for writing: " + str(FileAccess.get_open_error()))
 
@@ -75,7 +80,7 @@ func verify_save() -> void:
 				if saved_high_score != current_high_score:
 					push_error("Save verification failed! Saved: " + str(saved_high_score) + " Expected: " + str(current_high_score))
 				else:
-					print("Save verified successfully. High score: ", saved_high_score)
+					print("Save verified. High score: ", saved_high_score)
 			else:
 				push_error("Save verification parse failed!")
 		else:
