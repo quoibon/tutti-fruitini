@@ -7,7 +7,6 @@ signal ad_failed_to_load
 signal ad_displayed
 signal ad_closed
 signal reward_earned
-signal free_refill_ready
 
 # Toggle between test and production ads
 # Set to false for production release!
@@ -29,13 +28,10 @@ var is_ad_loaded: bool = false
 var is_plugin_available: bool = false
 var is_loading: bool = false
 
-# Fallback timer system
+# Retry timer system
 var retry_timer: Timer
-var free_refill_timer: Timer
-var free_refill_timer_started: bool = false  # Track if timer was ever started
 
 const AD_RETRY_DELAY: float = 5.0
-const FREE_REFILL_DELAY: float = 30.0
 
 func _ready() -> void:
 	print("========================================")
@@ -54,13 +50,6 @@ func _ready() -> void:
 	retry_timer.wait_time = AD_RETRY_DELAY
 	retry_timer.timeout.connect(_on_retry_timeout)
 	add_child(retry_timer)
-
-	# Setup free refill timer (fallback)
-	free_refill_timer = Timer.new()
-	free_refill_timer.one_shot = true
-	free_refill_timer.wait_time = FREE_REFILL_DELAY
-	free_refill_timer.timeout.connect(_on_free_refill_timeout)
-	add_child(free_refill_timer)
 
 	# Initialize AdMob if available
 	if is_plugin_available:
@@ -142,8 +131,6 @@ func load_rewarded_ad() -> void:
 		# Retry after delay
 		print("🔄 Retrying ad load in ", AD_RETRY_DELAY, " seconds...")
 		retry_timer.start()
-		# Offer free refill as backup
-		show_free_refill_option()
 
 	rewarded_ad_load_callback.on_ad_loaded = func(loaded_ad: RewardedAd) -> void:
 		is_ad_loaded = true
@@ -163,14 +150,14 @@ func show_rewarded_ad() -> void:
 	print("========================================")
 
 	if not is_plugin_available:
-		print("⚠️ AdMob plugin not available - starting free refill timer")
-		show_free_refill_option()
+		print("⚠️ AdMob plugin not available - granting free refill (no internet)")
+		grant_free_refill()
 		return
 
 	if not is_ad_loaded or rewarded_ad == null:
-		print("⚠️ Rewarded ad not loaded yet - attempting to load")
-		load_rewarded_ad()
-		show_free_refill_option()  # Offer fallback while loading
+		print("⚠️ Rewarded ad not loaded yet - granting free refill (no internet)")
+		grant_free_refill()
+		load_rewarded_ad()  # Try to load for next time
 		return
 
 	print("📺 Showing rewarded ad...")
@@ -195,18 +182,14 @@ func show_rewarded_ad() -> void:
 			rewarded_ad.destroy()
 			rewarded_ad = null
 			is_ad_loaded = false
-		show_free_refill_option()
+		# Grant free refill if ad fails to show (no internet)
+		grant_free_refill()
 
 	rewarded_ad.full_screen_content_callback = full_screen_content_callback
 	rewarded_ad.show(on_user_earned_reward_listener)
 
-func show_free_refill_option() -> void:
-	print("⏱️ Free refill available in ", FREE_REFILL_DELAY, " seconds")
-	free_refill_timer_started = true
-	free_refill_timer.start()
-
 func grant_free_refill() -> void:
-	print("✅ Granting free shake refill")
+	print("✅ Granting free shake refill (no internet connection)")
 	emit_signal("reward_earned")
 
 # AdMob Callbacks
@@ -215,38 +198,13 @@ func _on_user_earned_reward(rewarded_item: RewardedItem) -> void:
 	print("🎁 User earned reward: ", rewarded_item.amount, " ", rewarded_item.type)
 	emit_signal("reward_earned")
 
-	# Cancel free refill timer if active
-	if free_refill_timer.time_left > 0:
-		free_refill_timer.stop()
-
 # Timer Callbacks
 
 func _on_retry_timeout() -> void:
 	print("🔄 Retrying ad load...")
 	load_rewarded_ad()
 
-func _on_free_refill_timeout() -> void:
-	print("✅ Free refill now available!")
-	emit_signal("free_refill_ready")
-
 # Public API
 
 func is_ad_ready() -> bool:
 	return is_plugin_available and is_ad_loaded and rewarded_ad != null
-
-func get_free_refill_time_remaining() -> float:
-	return free_refill_timer.time_left
-
-func is_free_refill_ready() -> bool:
-	# Free refill is ready only if:
-	# 1. Timer was started (ad failed or plugin unavailable)
-	# 2. AND timer has finished (time_left = 0 and is_stopped = true)
-	var ready = free_refill_timer_started and free_refill_timer.is_stopped() and free_refill_timer.time_left <= 0
-
-	print("is_free_refill_ready() = ", ready)
-	print("  timer_started=", free_refill_timer_started)
-	print("  timer_stopped=", free_refill_timer.is_stopped())
-	print("  time_left=", free_refill_timer.time_left)
-	print("  plugin_available=", is_plugin_available)
-
-	return ready

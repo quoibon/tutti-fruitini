@@ -61,7 +61,6 @@ func _ready() -> void:
 
 	# Connect AdManager signals
 	AdManager.reward_earned.connect(_on_ad_reward_earned)
-	AdManager.free_refill_ready.connect(_on_free_refill_ready)
 	AdManager.ad_failed_to_load.connect(_on_ad_failed)
 
 	# Initialize UI
@@ -91,10 +90,6 @@ func _process(_delta: float) -> void:
 		update_preview_position()
 		check_fruits_out_of_bounds()
 
-	# Update refill button text continuously (for countdown timer)
-	if refill_button.visible:
-		update_refill_button_text()
-
 func update_preview_position() -> void:
 	var mouse_pos = get_global_mouse_position()
 
@@ -113,26 +108,42 @@ func check_fruits_out_of_bounds() -> void:
 	var container_left = container_center_x - GameManager.CONTAINER_WIDTH / 2
 	var container_right = container_center_x + GameManager.CONTAINER_WIDTH / 2
 	var container_bottom = container_center_y + GameManager.CONTAINER_HEIGHT / 2
+	var container_top = container_center_y - GameManager.CONTAINER_HEIGHT / 2
 
-	# Tight margins - if fruit goes significantly outside, game over
-	var side_margin = 80  # Pixels outside left/right walls
-	var bottom_margin = 100  # Pixels below floor
+	# Very strict margins - minimal tolerance
+	var side_margin = 30  # Reduced from 80 to 30 pixels
+	var bottom_margin = 50  # Reduced from 100 to 50 pixels
+	var top_margin = 200  # Allow some space above for dropping fruits
 
 	for fruit_node in fruit_container.get_children():
 		if fruit_node is Fruit:
 			var pos = fruit_node.global_position
 			var velocity = fruit_node.linear_velocity.length()
 
-			# Ignore fruits that are moving very fast (still in flight)
-			# But trigger game over for slower fruits that have landed outside
-			if velocity < 300:  # If moving slower than 300 px/s, it's landed/landing
-				# Check if outside left/right walls or below floor
-				if pos.x < container_left - side_margin or \
-				   pos.x > container_right + side_margin or \
-				   pos.y > container_bottom + bottom_margin:
-					print("GAME OVER! Fruit landed out of bounds at position: ", pos, " velocity: ", velocity)
-					game_over_detector.trigger_game_over()
-					return
+			# Get fruit radius - handle different shape types
+			var fruit_radius = 50  # Default
+			if fruit_node.collision_shape and fruit_node.collision_shape.shape:
+				if fruit_node.collision_shape.shape is CircleShape2D:
+					fruit_radius = fruit_node.collision_shape.shape.radius
+				else:
+					# For other shapes, use a reasonable estimate
+					fruit_radius = 50
+
+			# Check if fruit center is significantly outside bounds
+			# Also check if fruit has completely left the screen
+			var is_slow = velocity < 200  # Reduced from 300 to 200 px/s
+			var completely_outside = pos.y > container_bottom + bottom_margin + fruit_radius or \
+									 pos.x < container_left - side_margin - fruit_radius or \
+									 pos.x > container_right + side_margin + fruit_radius or \
+									 pos.y < container_top - top_margin - fruit_radius
+
+			if completely_outside or (is_slow and (
+			   pos.x < container_left - side_margin or \
+			   pos.x > container_right + side_margin or \
+			   pos.y > container_bottom + bottom_margin)):
+				print("GAME OVER! Fruit out of bounds - Position: ", pos, " Velocity: ", velocity, " Radius: ", fruit_radius)
+				game_over_detector.trigger_game_over()
+				return
 
 func _on_score_changed(new_score: int) -> void:
 	update_score_ui()
@@ -234,16 +245,9 @@ func _on_shake_button_pressed() -> void:
 
 func _on_refill_button_pressed() -> void:
 	AudioManager.play_click_sound()
-
-	# Check if free refill is ready
-	if AdManager.is_free_refill_ready():
-		shake_manager.refill_shakes()
-		refill_button.visible = false
-		print("Free refill granted!")
-	else:
-		# Show rewarded ad
-		AdManager.show_rewarded_ad()
-		print("Loading rewarded ad...")
+	# Show rewarded ad (or grant free refill if no internet)
+	AdManager.show_rewarded_ad()
+	print("Requesting shake refill...")
 
 func update_shake_counter_ui() -> void:
 	var count = shake_manager.get_shake_count()
@@ -264,14 +268,7 @@ func update_refill_button_text() -> void:
 	if not refill_button.visible:
 		return
 
-	if AdManager.is_free_refill_ready():
-		refill_button.text = "FREE REFILL!"
-	else:
-		var time_left = int(AdManager.get_free_refill_time_remaining())
-		if time_left > 0:
-			refill_button.text = "Watch Ad\nRefill Shakes\n(Free in " + str(time_left) + "s)"
-		else:
-			refill_button.text = "Watch Ad\nRefill Shakes"
+	refill_button.text = "Watch Ad\nRefill Shakes"
 
 # AdManager Callbacks
 
@@ -280,13 +277,8 @@ func _on_ad_reward_earned() -> void:
 	shake_manager.refill_shakes()
 	refill_button.visible = false
 
-func _on_free_refill_ready() -> void:
-	print("Free refill is now available")
-	if refill_button.visible:
-		refill_button.text = "FREE REFILL!"
-
 func _on_ad_failed() -> void:
-	print("Ad failed to load - free refill option available in 30s")
+	print("Ad failed to load")
 
 # Pause Functionality
 
