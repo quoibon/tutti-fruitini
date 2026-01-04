@@ -10,7 +10,7 @@ signal reward_earned
 
 # Toggle between test and production ads
 # Set to false for production release!
-const USE_TEST_ADS: bool = true
+const USE_TEST_ADS: bool = false
 
 # Production IDs
 const PROD_ANDROID_REWARDED_AD_ID = "ca-app-pub-2547513308278750/3568656364"
