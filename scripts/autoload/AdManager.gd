@@ -51,9 +51,13 @@ func _ready() -> void:
 	retry_timer.timeout.connect(_on_retry_timeout)
 	add_child(retry_timer)
 
-	# Initialize AdMob if available
+	# Initialize AdMob if available (deferred to avoid blocking startup)
 	if is_plugin_available:
+		# Defer initialization slightly to ensure app starts smoothly
+		await get_tree().create_timer(0.5).timeout
 		initialize_admob()
+		# Defer ad loading to avoid blocking if network is slow
+		await get_tree().create_timer(1.0).timeout
 		load_rewarded_ad()
 	else:
 		print("AdMob plugin not available - using fallback mode only")
