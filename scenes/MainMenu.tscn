@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://b8vnyak2m5wqp"]
+[gd_scene load_steps=4 format=3 uid="uid://b8vnyak2m5wqp"]
 
-[ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1_mainmenu"]
-[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/newyork1950sstreet.png" id="2_background"]
+[ext_resource type="Script" uid="uid://cdvo3d45x38xb" path="res://scripts/MainMenu.gd" id="1_mainmenu"]
+[ext_resource type="Texture2D" uid="uid://dvlkuqsgfkl2y" path="res://assets/sprites/backgrounds/newyork1950sstreet.png" id="2_background"]
+[ext_resource type="Texture2D" uid="uid://c044imo6rcrye" path="res://assets/sprites/ui/tuttifruttini_Logo.png" id="3_logo"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -13,6 +14,7 @@ grow_vertical = 2
 script = ExtResource("1_mainmenu")
 
 [node name="BackgroundColor" type="ColorRect" parent="."]
+z_index = -2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,9 +22,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
-z_index = -2
 
 [node name="BackgroundSprite" type="TextureRect" parent="."]
+z_index = -1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,7 +34,6 @@ grow_vertical = 2
 texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
-z_index = -1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -52,27 +53,17 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+[node name="LogoTexture" type="TextureRect" parent="VBoxContainer"]
+custom_minimum_size = Vector2(650, 260)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 40
-text = "Italian BrainRot:
-Tutti Fruttini Combinasion"
-horizontal_alignment = 1
-autowrap_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("3_logo")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Spacer1_5" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
-
-[node name="FruitIcon" type="TextureRect" parent="VBoxContainer"]
-custom_minimum_size = Vector2(150, 150)
-layout_mode = 2
-size_flags_horizontal = 4
-expand_mode = 1
-stretch_mode = 5
 
 [node name="SubtitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
@@ -91,8 +82,8 @@ layout_mode = 2
 custom_minimum_size = Vector2(500, 100)
 layout_mode = 2
 size_flags_horizontal = 4
-alignment = 1
 theme_override_constants/separation = 15
+alignment = 1
 
 [node name="LeftIcon" type="TextureRect" parent="VBoxContainer/PlayButton"]
 custom_minimum_size = Vector2(60, 60)
@@ -176,6 +167,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="VersionLabel" type="Label" parent="."]
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5

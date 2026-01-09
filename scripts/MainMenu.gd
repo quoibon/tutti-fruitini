@@ -9,7 +9,6 @@ extends Control
 @onready var how_to_play_button = $VBoxContainer/HowToPlayButton  # Will be created in scene
 @onready var quit_button = $VBoxContainer/QuitButton
 @onready var high_score_label = $VBoxContainer/HighScoreLabel
-@onready var fruit_icon = $VBoxContainer/FruitIcon
 
 var settings_scene: PackedScene
 var tutorial_scene: PackedScene
@@ -19,8 +18,7 @@ func _ready() -> void:
 	settings_scene = preload("res://scenes/Settings.tscn")
 	tutorial_scene = preload("res://scenes/Tutorial.tscn")
 
-	# Set random fruit icons
-	randomize_title_icons()
+	# Set random fruit icons for play button
 	randomize_play_button_icons()
 
 	# Connect buttons
@@ -34,13 +32,6 @@ func _ready() -> void:
 
 	# Play menu music
 	AudioManager.play_menu_music()
-
-func randomize_title_icons() -> void:
-	# Pick one random fruit level (0-10)
-	var random_fruit = randi() % 11
-
-	# Load and set sprite
-	load_fruit_icon(fruit_icon, random_fruit)
 
 func randomize_play_button_icons() -> void:
 	# Pick two random fruit levels (0-10)

@@ -126,8 +126,43 @@ func play_refill_sound() -> void:
 	play_sfx("refill")
 
 func play_max_merge_sound() -> void:
-	# Special sound for when two fruit 11s merge
-	play_sfx("67")
+	# Special sound for when two fruit 11s merge - plays 3 times for celebration
+	_play_max_merge_sequence(3)
+
+func _play_max_merge_sequence(times_remaining: int) -> void:
+	if times_remaining <= 0:
+		return
+
+	# Find an available SFX player
+	var player = _get_available_sfx_player()
+
+	# Load the 67.mp3 sound file
+	var stream = ResourceLoader.load("res://assets/sounds/sfx/67.mp3")
+	if not stream:
+		print("Max merge sound (67.mp3) not found")
+		return
+
+	# Play the sound
+	player.stream = stream
+	player.play()
+
+	# If more plays remaining, connect to finished signal to play again
+	if times_remaining > 1:
+		# Disconnect any previous connections to avoid duplicates
+		if player.finished.is_connected(_play_max_merge_sequence):
+			player.finished.disconnect(_play_max_merge_sequence)
+
+		# Connect for the next play
+		player.finished.connect(_play_max_merge_sequence.bind(times_remaining - 1), CONNECT_ONE_SHOT)
+
+func _get_available_sfx_player() -> AudioStreamPlayer:
+	# Find an available SFX player (not currently playing)
+	for player in sfx_players:
+		if not player.playing:
+			return player
+
+	# All players busy, return the first one
+	return sfx_players[0]
 
 func play_fruit_sound(fruit_level: int) -> void:
 	# Play fruit-specific sound based on level (0-10)
@@ -176,6 +211,9 @@ func toggle_music() -> void:
 	music_enabled = not music_enabled
 	if music_enabled:
 		set_music_volume(music_volume)
+		# If music player has a stream loaded but isn't playing, start it
+		if music_player.stream and not music_player.playing:
+			music_player.play()
 	else:
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), -80)
 	save_settings()
