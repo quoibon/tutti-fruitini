@@ -38,11 +38,10 @@ func _ready() -> void:
 	print("AdManager _ready() called")
 	print("========================================")
 
-	# TEMPORARY: Completely disable AdMob for testing AAB hang issue
-	print("⚠️ AdMob DISABLED for testing - using fallback mode only")
-	is_plugin_available = false
+	# Check if AdMob plugin is available
+	check_plugin_availability()
 
-	# Setup reward listener (even though we won't use it)
+	# Setup reward listener
 	on_user_earned_reward_listener.on_user_earned_reward = _on_user_earned_reward
 
 	# Setup retry timer
@@ -52,8 +51,12 @@ func _ready() -> void:
 	retry_timer.timeout.connect(_on_retry_timeout)
 	add_child(retry_timer)
 
-	print("AdManager _ready() completed successfully")
-	print("========================================")
+	# Initialize AdMob if available (deferred to avoid blocking startup)
+	if is_plugin_available:
+		# Use call_deferred to ensure scene tree is fully ready
+		call_deferred("_initialize_admob_deferred")
+	else:
+		print("AdMob plugin not available - using fallback mode only")
 
 func _initialize_admob_deferred() -> void:
 	# Defer initialization significantly to ensure app starts smoothly
