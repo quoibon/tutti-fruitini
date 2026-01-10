@@ -60,10 +60,11 @@ func _ready() -> void:
 
 func _initialize_admob_deferred() -> void:
 	# Defer initialization slightly to ensure app starts smoothly
-	await get_tree().create_timer(0.5).timeout
+	# Increased delay for AAB builds to avoid startup hangs
+	await get_tree().create_timer(2.0).timeout
 	initialize_admob()
 	# Defer ad loading to avoid blocking if network is slow
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(2.0).timeout
 	load_rewarded_ad()
 
 func check_plugin_availability() -> void:
