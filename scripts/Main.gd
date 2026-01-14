@@ -65,6 +65,9 @@ func _ready() -> void:
 	AdManager.reward_earned.connect(_on_ad_reward_earned)
 	AdManager.ad_failed_to_load.connect(_on_ad_failed)
 
+	# Adjust UI for safe areas (camera notches, punch holes)
+	adjust_ui_for_safe_area()
+
 	# Initialize UI
 	update_score_ui()
 	update_high_score_ui()
@@ -302,6 +305,31 @@ func _on_tree_exiting() -> void:
 		ScoreManager.save_high_score()
 	SaveManager.save_data()
 	print("Main scene exiting - Data saved as failsafe")
+
+func adjust_ui_for_safe_area() -> void:
+	# Get safe area to avoid camera notches, punch holes, etc.
+	var safe_rect = DisplayServer.get_display_safe_area()
+	var screen_size = get_viewport_rect().size
+
+	# Calculate safe margins
+	var top_margin = safe_rect.position.y
+	var left_margin = safe_rect.position.x
+
+	print("Safe area margins - Top: ", top_margin, " Left: ", left_margin)
+
+	# Adjust high score label position
+	if high_score_label:
+		var original_top = 50.0
+		var original_left = 50.0
+		high_score_label.offset_left = original_left + left_margin
+		high_score_label.offset_top = original_top + top_margin
+
+	# Adjust score label position
+	if score_label:
+		var original_top = 100.0
+		var original_left = 50.0
+		score_label.offset_left = original_left + left_margin
+		score_label.offset_top = original_top + top_margin
 
 func scale_background_to_screen() -> void:
 	if not background_sprite or not background_sprite.texture:

@@ -28,12 +28,14 @@ func _ready() -> void:
 	generate_next_fruit()
 
 func _input(event: InputEvent) -> void:
-	# Handle touch/click input
-	if event is InputEventScreenTouch and event.pressed:
+	# Handle touch/click input - spawn on RELEASE to give players time to position
+	if event is InputEventScreenTouch and not event.pressed:
+		# Touch released - spawn fruit at current position
 		if can_spawn and not GameManager.is_game_over and not is_mouse_over_ui():
 			var touch_pos = event.position
 			drop_fruit_at_screen_pos(touch_pos)
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	elif event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Mouse button released - spawn fruit at current position
 		if can_spawn and not GameManager.is_game_over and not is_mouse_over_ui():
 			var mouse_pos = event.position
 			drop_fruit_at_screen_pos(mouse_pos)
